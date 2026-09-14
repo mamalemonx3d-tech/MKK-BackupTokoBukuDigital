@@ -208,6 +208,10 @@ definePageMeta({
   layout: 'auth'
 })
 
+useHead({
+  title: 'Daftar Akun - TokoBukuDigital'
+})
+
 const authStore = useAuthStore()
 const { isDark } = useTheme()
 

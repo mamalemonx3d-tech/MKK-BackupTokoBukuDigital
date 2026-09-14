@@ -3,6 +3,21 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
 
+  app: {
+    head: {
+      title: 'TokoBukuDigital',
+      titleTemplate: '%s',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'TokoBukuDigital - Platform Toko Buku Online Modern' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ]
+    }
+  },
+
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss'

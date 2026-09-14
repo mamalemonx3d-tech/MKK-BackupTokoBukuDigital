@@ -219,6 +219,10 @@ definePageMeta({
   layout: 'auth'
 })
 
+useHead({
+  title: 'Masuk - TokoBukuDigital'
+})
+
 const authStore = useAuthStore()
 const { isDark } = useTheme()
 

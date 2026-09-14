@@ -5,6 +5,10 @@ definePageMeta({
   layout: false
 })
 
+useHead({
+  title: 'TokoBukuDigital'
+})
+
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 const toast = useToast()

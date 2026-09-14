@@ -2,7 +2,7 @@ export const useApi = () => {
   const config = useRuntimeConfig()
   const tokenCookie = useCookie<string | null>('auth_token', { path: '/' })
   
-  let apiBase = config.public.apiBase || 'http://localhost:8000'
+  let apiBase = config.public.apiBase || 'http://127.0.0.1:8000'
   
   if (process.client && window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     apiBase = `${window.location.protocol}//${window.location.hostname}:8000`
@@ -20,7 +20,8 @@ export const useApi = () => {
     try {
       await $fetch('/sanctum/csrf-cookie', {
         baseURL: apiBase,
-        credentials: 'include'
+        credentials: 'include',
+        timeout: 2500
       })
     } catch (e) {
       // Ignore CSRF cookie fetch errors if token is used
@@ -62,6 +63,7 @@ export const useApi = () => {
       baseURL: apiBase,
       credentials: 'include',
       headers,
+      timeout: 4000,
       ...options
     })
   }
