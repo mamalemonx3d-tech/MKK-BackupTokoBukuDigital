@@ -1,110 +1,203 @@
 <template>
-  <div class="min-h-[85vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-4xl mx-auto">
     <div 
-      :class="isDark ? 'bg-slate-900 border-slate-800 shadow-2xl text-slate-100' : 'bg-[#FFF8EC] border-3 border-[#1A1A1A] shadow-[8px_8px_0px_#1A1A1A] text-slate-900'"
-      class="max-w-lg w-full p-8 rounded-3xl transition-colors duration-300"
+      class="w-full rounded-3xl border-2 overflow-hidden transition-all duration-300 grid grid-cols-1 md:grid-cols-12"
+      :class="isDark ? 'bg-zinc-900 border-zinc-700 shadow-2xl shadow-black' : 'bg-white border-black shadow-[8px_8px_0px_#000000]'"
     >
-      <div class="text-center mb-8">
+      <!-- Left Side: Literary Aesthetic Showcase (Visible on md+) -->
+      <div 
+        class="hidden md:flex md:col-span-5 flex-col justify-between p-8 relative overflow-hidden border-r-2 transition-colors duration-300"
+        :class="isDark ? 'border-zinc-700 bg-white text-black' : 'border-black bg-black text-white'"
+      >
+        <!-- Modern Geometric Vector Pattern (Dynamic Reversible Grid) -->
+        <div class="absolute inset-0 pointer-events-none" :class="isDark ? 'opacity-20 text-black' : 'opacity-20 text-white'">
+          <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+            <defs>
+              <pattern id="grid-pattern-reg" width="32" height="32" patternUnits="userSpaceOnUse">
+                <path d="M0 32V0h32" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-pattern-reg)" />
+          </svg>
+        </div>
+
+        <!-- Ambient Watermark & Rings -->
+        <div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full border opacity-20 pointer-events-none" :class="isDark ? 'border-black' : 'border-white'"></div>
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full border opacity-10 pointer-events-none" :class="isDark ? 'border-black' : 'border-white'"></div>
+        <div class="absolute right-4 bottom-12 font-mono font-black text-8xl pointer-events-none select-none" :class="isDark ? 'text-black/5' : 'text-white/5'">
+          B
+        </div>
+
+        <!-- Content Overlay -->
+        <div class="relative z-10 space-y-3">
+          <div 
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-mono tracking-wider font-bold uppercase transition-colors"
+            :class="isDark ? 'border-black/20 bg-black/5 text-black' : 'border-white/20 bg-white/10 text-zinc-300'"
+          >
+            REGISTRASI ANGGOTA
+          </div>
+          <h3 class="text-2xl font-black leading-tight tracking-tight transition-colors" :class="isDark ? 'text-black' : 'text-white'">
+            Bergabung dengan Ribuan Pembaca Setia.
+          </h3>
+        </div>
+
+        <div class="relative z-10 space-y-4 pt-8">
+          <div class="space-y-2.5 text-xs transition-colors" :class="isDark ? 'text-zinc-800 font-bold' : 'text-zinc-300'">
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px]" :class="isDark ? 'bg-black text-white' : 'bg-white text-black'">✓</span>
+              <span>Koleksi buku terbitan resmi & original</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px]" :class="isDark ? 'bg-black text-white' : 'bg-white text-black'">✓</span>
+              <span>Akses pratinjau sampel buku gratis</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px]" :class="isDark ? 'bg-black text-white' : 'bg-white text-black'">✓</span>
+              <span>Pelacakan pesanan & pengiriman real-time</span>
+            </div>
+          </div>
+          
+          <div class="pt-2 text-[11px] font-mono transition-colors" :class="isDark ? 'text-zinc-700' : 'text-zinc-400'">
+            TokoBukuDigital • MONO Edition
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Register Form -->
+      <div class="md:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
+        <!-- Header -->
+        <div class="mb-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div 
+              class="w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-transform hover:scale-105"
+              :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]'"
+            >
+              <!-- Sleek Vector Register Icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl sm:text-2xl font-black tracking-tight leading-tight">Buat Akun Baru</h2>
+              <p class="text-xs font-medium" :class="isDark ? 'text-zinc-400' : 'text-zinc-600'">
+                Daftar hanya dengan nama dan alamat email Anda
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Alert -->
         <div 
-          :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
-          class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3"
+          v-if="errorMessage" 
+          class="mb-4 p-3.5 rounded-xl border-2 text-xs font-bold flex items-start gap-2.5 transition-all"
+          :class="isDark ? 'bg-rose-950/40 border-rose-700 text-rose-300' : 'bg-rose-50 border-rose-600 text-rose-800 shadow-[2px_2px_0px_#e11d48]'"
         >
-          📝
-        </div>
-        <h2 :class="isDark ? 'text-white' : 'text-slate-900'" class="text-2xl font-black">Buat Akun Baru</h2>
-        <p :class="isDark ? 'text-slate-400' : 'text-slate-700'" class="text-xs font-bold mt-1">Isi formulir pendaftaran untuk bergabung di BookStore</p>
-      </div>
-
-      <div v-if="errorMessage" class="mb-4 p-3.5 rounded-xl bg-[#FFB7B2] border-2 border-black text-slate-900 text-xs font-black shadow-[2px_2px_0px_#1A1A1A]">
-        {{ errorMessage }}
-      </div>
-
-      <form @submit.prevent="handleRegister" class="space-y-4">
-        <div>
-          <label :class="isDark ? 'text-slate-300' : 'text-slate-900'" class="block text-xs font-black mb-1">Nama Lengkap</label>
-          <input 
-            v-model="form.name" 
-            type="text" 
-            required 
-            :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[3px_3px_0px_#1A1A1A]'"
-            class="w-full px-4 py-2.5 text-sm rounded-xl outline-none font-bold transition-all" 
-            placeholder="Contoh: Budi Santoso" 
-          />
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span class="flex-1 leading-relaxed">{{ errorMessage }}</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Form -->
+        <form @submit.prevent="handleRegister" class="space-y-3.5">
           <div>
-            <label :class="isDark ? 'text-slate-300' : 'text-slate-900'" class="block text-xs font-black mb-1">Username (Unik)</label>
+            <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
+              Nama Lengkap
+            </label>
             <input 
-              v-model="form.username" 
+              v-model="form.name" 
               type="text" 
               required 
-              :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[3px_3px_0px_#1A1A1A]'"
-              class="w-full px-4 py-2.5 text-sm rounded-xl outline-none font-bold transition-all" 
-              placeholder="budi123" 
+              placeholder="Contoh: Budi Santoso" 
+              class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
+              :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
             />
           </div>
-          <div>
-            <label :class="isDark ? 'text-slate-300' : 'text-slate-900'" class="block text-xs font-black mb-1">No. Telepon</label>
-            <input 
-              v-model="form.no_telp" 
-              type="text" 
-              :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[3px_3px_0px_#1A1A1A]'"
-              class="w-full px-4 py-2.5 text-sm rounded-xl outline-none font-bold transition-all" 
-              placeholder="08123456789" 
-            />
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
+                Alamat Email (Untuk Login)
+              </label>
+              <input 
+                v-model="form.email" 
+                type="email" 
+                required 
+                placeholder="nama@email.com" 
+                class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
+                :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
+                No. WhatsApp / HP
+              </label>
+              <input 
+                v-model="form.no_telp" 
+                type="tel" 
+                placeholder="08123456789" 
+                class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
+                :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
+              />
+            </div>
           </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
+                Password
+              </label>
+              <input 
+                v-model="form.password" 
+                type="password" 
+                required 
+                placeholder="Minimal 6 karakter" 
+                class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
+                :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
+                Konfirmasi Password
+              </label>
+              <input 
+                v-model="form.password_confirmation" 
+                type="password" 
+                required 
+                placeholder="Ulangi password" 
+                class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
+                :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            :disabled="loading" 
+            class="w-full py-3 sm:py-3.5 rounded-xl font-black text-xs sm:text-sm border-2 transition-all disabled:opacity-50 mt-4 cursor-pointer hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+            :class="isDark ? 'bg-white text-black border-white shadow-[3px_3px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[4px_4px_0px_#000000]'"
+          >
+            <span v-if="loading">Mendaftarkan...</span>
+            <span v-else class="flex items-center gap-1.5">
+              <span>Daftar Akun Sekarang</span>
+              <span>&rarr;</span>
+            </span>
+          </button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="mt-5 text-center text-xs font-medium" :class="isDark ? 'text-zinc-400' : 'text-zinc-600'">
+          Sudah memiliki akun?
+          <NuxtLink 
+            to="/login" 
+            class="font-black underline ml-1 cursor-pointer hover:opacity-80"
+            :class="isDark ? 'text-white' : 'text-black'"
+          >
+            Masuk di Sini
+          </NuxtLink>
         </div>
-
-        <div>
-          <label :class="isDark ? 'text-slate-300' : 'text-slate-900'" class="block text-xs font-black mb-1">Email (Unik)</label>
-          <input 
-            v-model="form.email" 
-            type="email" 
-            required 
-            :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[3px_3px_0px_#1A1A1A]'"
-            class="w-full px-4 py-2.5 text-sm rounded-xl outline-none font-bold transition-all" 
-            placeholder="budi@example.com" 
-          />
-        </div>
-
-        <div>
-          <label :class="isDark ? 'text-slate-300' : 'text-slate-900'" class="block text-xs font-black mb-1">Password</label>
-          <input 
-            v-model="form.password" 
-            type="password" 
-            required 
-            :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[3px_3px_0px_#1A1A1A]'"
-            class="w-full px-4 py-2.5 text-sm rounded-xl outline-none font-bold transition-all" 
-            placeholder="Minimal 6 karakter" 
-          />
-        </div>
-
-        <div>
-          <label :class="isDark ? 'text-slate-300' : 'text-slate-900'" class="block text-xs font-black mb-1">Foto Profil (Opsional)</label>
-          <input 
-            @change="handleFileChange" 
-            type="file" 
-            accept="image/*" 
-            :class="isDark ? 'text-slate-400 file:bg-slate-800 file:text-indigo-300' : 'text-slate-700 file:bg-[#FFE566] file:text-black file:border-2 file:border-black file:shadow-[1.5px_1.5px_0px_#1A1A1A] file:font-black'"
-            class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 hover:file:opacity-80 transition-opacity" 
-          />
-        </div>
-
-        <button 
-          type="submit" 
-          :disabled="loading" 
-          :class="isDark ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-[#C8F53F] hover:bg-[#b8e82f] text-black border-2 border-black shadow-[4px_4px_0px_#1A1A1A] active:translate-x-[2px] active:translate-y-[2px]'"
-          class="w-full py-3 rounded-xl font-black text-sm transition-all disabled:opacity-50 mt-2"
-        >
-          <span v-if="loading">Mendaftarkan...</span>
-          <span v-else>Daftar Akun Sekarang &rarr;</span>
-        </button>
-      </form>
-
-      <div :class="isDark ? 'text-slate-400' : 'text-slate-700'" class="mt-6 text-center text-xs font-bold">
-        Sudah memiliki akun?
-        <NuxtLink to="/login" :class="isDark ? 'text-indigo-400' : 'text-black bg-[#FFE566] px-2 py-0.5 rounded border border-black shadow-[1.5px_1.5px_0px_#1A1A1A] ml-1'" class="font-black">Masuk di Sini</NuxtLink>
       </div>
     </div>
   </div>
@@ -120,37 +213,30 @@ const { isDark } = useTheme()
 
 const form = reactive({
   name: '',
-  username: '',
   email: '',
   no_telp: '',
-  password: ''
+  password: '',
+  password_confirmation: ''
 })
 
-const selectedFoto = ref<File | null>(null)
 const loading = ref(false)
 const errorMessage = ref('')
 
-const handleFileChange = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    selectedFoto.value = target.files[0]
-  }
-}
-
 const handleRegister = async () => {
+  if (form.password !== form.password_confirmation) {
+    errorMessage.value = 'Konfirmasi password tidak cocok dengan password yang dimasukkan.'
+    return
+  }
+
   loading.value = true
   errorMessage.value = ''
 
   try {
     const formData = new FormData()
     formData.append('name', form.name)
-    formData.append('username', form.username)
     formData.append('email', form.email)
     formData.append('no_telp', form.no_telp)
     formData.append('password', form.password)
-    if (selectedFoto.value) {
-      formData.append('foto', selectedFoto.value)
-    }
 
     await authStore.register(formData)
     navigateTo('/user/katalog')
@@ -160,7 +246,7 @@ const handleRegister = async () => {
       const firstKey = Object.keys(errors)[0]
       errorMessage.value = errors[firstKey][0]
     } else {
-      errorMessage.value = err.data?.message || 'Registrasi gagal. Periksa kembali data Anda.'
+      errorMessage.value = err.data?.message || 'Registrasi gagal. Periksa kembali data formulir Anda.'
     }
   } finally {
     loading.value = false

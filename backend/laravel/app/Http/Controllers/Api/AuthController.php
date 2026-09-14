@@ -21,7 +21,7 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username',
+            'username' => 'nullable|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'no_telp' => 'nullable|string|max:20',
             'password' => 'required|string|min:6',
@@ -33,9 +33,21 @@ class AuthController extends Controller
             $fotoPath = $request->file('foto')->store('users', 'public');
         }
 
+        // Auto-generate username if not explicitly supplied
+        $username = $validated['username'] ?? null;
+        if (!$username) {
+            $baseUsername = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', explode('@', $validated['email'])[0]));
+            $username = $baseUsername;
+            $counter = 1;
+            while (User::where('username', $username)->exists()) {
+                $username = $baseUsername . $counter;
+                $counter++;
+            }
+        }
+
         $user = User::create([
             'name' => $validated['name'],
-            'username' => $validated['username'],
+            'username' => $username,
             'email' => $validated['email'],
             'no_telp' => $validated['no_telp'] ?? null,
             'password' => Hash::make($validated['password']),
