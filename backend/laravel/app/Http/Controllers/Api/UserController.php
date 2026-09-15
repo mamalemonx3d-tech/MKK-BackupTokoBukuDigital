@@ -31,7 +31,6 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'no_telp' => 'nullable|string|max:20',
             'role' => 'required|in:admin,user',
             'password' => 'nullable|string|min:6',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

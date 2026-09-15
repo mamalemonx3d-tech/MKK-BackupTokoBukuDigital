@@ -23,7 +23,6 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'nullable|string|max:255|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'no_telp' => 'nullable|string|max:20',
             'password' => 'required|string|min:6',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -49,7 +48,6 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'username' => $username,
             'email' => $validated['email'],
-            'no_telp' => $validated['no_telp'] ?? null,
             'password' => Hash::make($validated['password']),
             'foto' => $fotoPath,
             'role' => 'user',
@@ -107,6 +105,83 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => new UserResource($request->user()),
+        ]);
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'remove_foto' => 'nullable|boolean',
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Alamat email ini sudah digunakan oleh akun lain.',
+            'username.unique' => 'Username ini sudah digunakan.',
+            'foto.image' => 'File foto harus berupa gambar.',
+            'foto.max' => 'Ukuran gambar maksimal adalah 2MB.',
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (isset($validated['username'])) {
+            $user->username = $validated['username'];
+        }
+
+        if ($request->boolean('remove_foto')) {
+            if ($user->foto && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->foto)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto);
+            }
+            $user->foto = null;
+        } elseif ($request->hasFile('foto')) {
+            if ($user->foto && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->foto)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto);
+            }
+            $user->foto = $request->file('foto')->store('users', 'public');
+        }
+
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profil berhasil diperbarui.',
+            'user' => new UserResource($user),
+        ]);
+    }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'current_password.required' => 'Password saat ini wajib diisi untuk verifikasi keamanan.',
+            'password.required' => 'Password baru wajib diisi.',
+            'password.min' => 'Password baru minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['Password saat ini yang Anda masukkan salah.'],
+            ]);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password berhasil diperbarui!',
+            'user' => new UserResource($user),
         ]);
     }
 

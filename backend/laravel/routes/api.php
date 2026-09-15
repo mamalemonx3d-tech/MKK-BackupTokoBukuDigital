@@ -43,8 +43,10 @@ Route::get('/admin/reports/export-excel', [ReportController::class, 'exportExcel
 // Authenticated Routes (Sanctum SPA & Bearer Token)
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    // Current logged in user profile
+    // Current logged in user profile & updates
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/profile/password', [AuthController::class, 'updatePassword']);
 
     // User & Admin Order Routes
     Route::get('/orders', [OrderController::class, 'index']);

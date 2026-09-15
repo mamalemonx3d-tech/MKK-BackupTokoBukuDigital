@@ -1,154 +1,245 @@
 <template>
-  <div class="space-y-6 font-['Space_Grotesk']">
-    <!-- Search / USB Scanner / Camera Scanner Header -->
-    <div 
-      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-[#FFF8EC] border-2 border-black shadow-[4px_4px_0px_#1A1A1A] text-slate-900'"
-      class="p-5 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4 transition-colors duration-300"
+  <div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header Section with Scan & Camera Controls -->
+    <div
+      :class="isDark ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-2 border-black text-black shadow-[4px_4px_0px_#000000]'"
+      class="p-5 sm:p-6 rounded-3xl border-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-colors duration-300"
     >
-      <div class="flex items-center gap-2 w-full md:w-auto flex-1">
-        <div class="relative w-full max-w-md">
+      <div class="space-y-1">
+        <div 
+          class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border"
+          :class="isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-700' : 'bg-zinc-100 text-black border-black shadow-[1px_1px_0px_#000000]'"
+        >
+          <span>🛒</span>
+          <span>Point of Sale & Kasir</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight" :class="isDark ? 'text-white' : 'text-black'">
+          Kasir & Scan QR
+        </h1>
+        <p class="text-xs font-medium" :class="isDark ? 'text-zinc-400' : 'text-zinc-600'">
+          Pindai QR Code pesanan pembeli atau masukkan kode pesanan secara manual untuk konfirmasi dan pembayaran.
+        </p>
+      </div>
+
+      <!-- Scan Bar & Camera Trigger -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div class="relative flex-1 min-w-[240px]">
           <input 
             ref="scannerInput"
             v-model="scanQuery" 
             type="text" 
-            placeholder="Scan QR Code / Masukkan Kode (A021)..." 
-            :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500 focus:bg-slate-900' : 'bg-white border-2 border-black text-slate-900 shadow-[2px_2px_0px_#1A1A1A]'"
-            class="w-full pl-10 pr-4 py-2.5 rounded-full text-xs font-black outline-none transition-colors"
+            placeholder="Scan QR / Ketik Kode (Contoh: A021)..." 
+            :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white placeholder-zinc-500 focus:border-white' : 'bg-zinc-50 border-2 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[3px_3px_0px_#000000] placeholder-zinc-400'"
+            class="w-full pl-9 pr-4 py-2.5 text-xs font-mono font-bold rounded-xl outline-none transition-all border-2"
             @keyup.enter="handleScanSubmit"
           />
-          <LucideQrCode class="w-4 h-4 text-slate-900 absolute left-3.5 top-3" />
+          <LucideQrCode class="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
         </div>
+
         <button 
           @click="startCameraScanner" 
-          :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] hover:translate-x-[-1px] active:translate-x-[1px]'"
-          class="px-4 py-2.5 rounded-full font-black text-xs flex items-center gap-1.5 whitespace-nowrap transition-all"
+          :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff] hover:bg-zinc-200' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000] hover:bg-zinc-800'"
+          class="px-4 py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 whitespace-nowrap transition-all border-2 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
-          📷 Scan Kamera HP / Web
+          <span>📷</span>
+          <span>Buka Kamera Scan</span>
         </button>
-      </div>
-
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-xs font-black uppercase" :class="isDark ? 'text-slate-400' : 'text-slate-700'">Status:</span>
-        <button @click="filterStatus = ''" :class="filterStatus === '' ? (isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]') : (isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-800 border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]')" class="px-3 py-1.5 text-xs font-black rounded-xl transition-all">Semua</button>
-        <button @click="filterStatus = 'pending'" :class="filterStatus === 'pending' ? 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]' : (isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-800 border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]')" class="px-3 py-1.5 text-xs font-black rounded-xl transition-all">Pending</button>
-        <button @click="filterStatus = 'confirmed'" :class="filterStatus === 'confirmed' ? 'bg-[#D4B8FF] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]' : (isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-800 border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]')" class="px-3 py-1.5 text-xs font-black rounded-xl transition-all">Confirmed</button>
-        <button @click="filterStatus = 'completed'" :class="filterStatus === 'completed' ? 'bg-[#A8E6CF] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]' : (isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-800 border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]')" class="px-3 py-1.5 text-xs font-black rounded-xl transition-all">Completed</button>
       </div>
     </div>
 
-    <!-- Modal Scanner Kamera Web / HP -->
-    <div v-if="showCameraModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div 
-        :class="isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-[#FFF8EC] border-3 border-black text-slate-900 shadow-[6px_6px_0px_#1A1A1A]'"
-        class="rounded-3xl p-6 max-w-md w-full space-y-4 text-center relative overflow-hidden"
+    <!-- Quick Status Filter Tabs -->
+    <div
+      :class="isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-2 border-black shadow-[3px_3px_0px_#000000]'"
+      class="p-3 sm:p-4 rounded-2xl border-2 flex items-center justify-between gap-3 overflow-x-auto transition-colors"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono font-bold uppercase text-zinc-400 mr-1 hidden sm:inline">Filter Status:</span>
+        <button 
+          @click="filterStatus = ''" 
+          :class="filterStatus === '' 
+            ? (isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]') 
+            : (isDark ? 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white' : 'bg-zinc-100 text-zinc-700 border-zinc-300 hover:text-black')"
+          class="px-3.5 py-1.5 text-xs font-black rounded-xl border-2 transition-all cursor-pointer whitespace-nowrap"
+        >
+          Semua Pesanan ({{ orders.length }})
+        </button>
+
+        <button 
+          @click="filterStatus = 'pending'" 
+          :class="filterStatus === 'pending' 
+            ? (isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]') 
+            : (isDark ? 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white' : 'bg-zinc-100 text-zinc-700 border-zinc-300 hover:text-black')"
+          class="px-3.5 py-1.5 text-xs font-black rounded-xl border-2 transition-all cursor-pointer whitespace-nowrap"
+        >
+          Menunggu Konfirmasi ({{ pendingOrdersCount }})
+        </button>
+
+        <button 
+          @click="filterStatus = 'confirmed'" 
+          :class="filterStatus === 'confirmed' 
+            ? (isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]') 
+            : (isDark ? 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white' : 'bg-zinc-100 text-zinc-700 border-zinc-300 hover:text-black')"
+          class="px-3.5 py-1.5 text-xs font-black rounded-xl border-2 transition-all cursor-pointer whitespace-nowrap"
+        >
+          Siap Bayar ({{ confirmedOrdersCount }})
+        </button>
+
+        <button 
+          @click="filterStatus = 'completed'" 
+          :class="filterStatus === 'completed' 
+            ? (isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]') 
+            : (isDark ? 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white' : 'bg-zinc-100 text-zinc-700 border-zinc-300 hover:text-black')"
+          class="px-3.5 py-1.5 text-xs font-black rounded-xl border-2 transition-all cursor-pointer whitespace-nowrap"
+        >
+          Selesai / Lunas ({{ completedOrdersCount }})
+        </button>
+      </div>
+
+      <button
+        @click="fetchOrders"
+        :class="isDark ? 'bg-zinc-800 text-zinc-300 hover:text-white border-zinc-700' : 'bg-zinc-100 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000000] hover:bg-zinc-200'"
+        class="px-3 py-1.5 rounded-xl text-xs font-black border transition-all cursor-pointer shrink-0"
+        title="Refresh Data Pesanan"
       >
-        <div class="flex justify-between items-center border-b-2 border-black pb-3">
-          <h3 class="font-black text-lg flex items-center gap-2">
-            📷 Pemindai Kamera QR Code
+        🔄 Refresh
+      </button>
+    </div>
+
+    <!-- Modal Scanner Kamera Web / HP -->
+    <div v-if="showCameraModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div 
+        :class="isDark ? 'bg-zinc-900 border-zinc-700 text-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]' : 'bg-white border-2 border-black text-black shadow-[6px_6px_0px_#000000]'"
+        class="rounded-3xl p-6 max-w-md w-full space-y-4 text-center relative border-2"
+      >
+        <div class="flex justify-between items-center border-b pb-3" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
+          <h3 class="font-black text-base sm:text-lg flex items-center gap-2">
+            <span>📷</span>
+            <span>Pemindai Kamera QR Code</span>
           </h3>
-          <button @click="stopCameraScanner" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="text-xs font-black px-3 py-1.5 rounded-xl">
-            ✕ Tutup Kamera
+          <button 
+            @click="stopCameraScanner" 
+            :class="isDark ? 'bg-zinc-800 text-zinc-300 hover:text-white' : 'bg-zinc-100 text-black border border-zinc-300'"
+            class="text-xs font-black px-3 py-1.5 rounded-xl cursor-pointer"
+          >
+            ✕ Tutup
           </button>
         </div>
 
-        <div class="relative aspect-square w-full bg-slate-950 rounded-2xl overflow-hidden border-2 border-black flex items-center justify-center">
+        <div class="relative aspect-square w-full bg-black rounded-2xl overflow-hidden border-2 border-zinc-700 flex items-center justify-center">
           <video ref="videoRef" class="w-full h-full object-cover"></video>
           <canvas ref="canvasRef" class="hidden"></canvas>
-          <div class="absolute inset-0 border-4 border-dashed border-[#C8F53F] m-10 rounded-2xl pointer-events-none animate-pulse flex items-center justify-center">
-            <span class="text-black text-xs font-black bg-[#C8F53F] px-3 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#1A1A1A]">Posisikan QR di dalam Kotak</span>
+          <div class="absolute inset-0 border-2 border-dashed border-white m-10 rounded-2xl pointer-events-none animate-pulse flex items-center justify-center">
+            <span class="text-black text-xs font-black bg-white px-3 py-1 rounded-full border border-black shadow-md">
+              Posisikan QR di dalam Kotak
+            </span>
           </div>
         </div>
 
-        <p class="text-xs font-black" :class="isDark ? 'text-slate-400' : 'text-slate-700'">Arahkan kamera ke QR Code di layar HP pembeli untuk memindai otomatis.</p>
+        <p class="text-xs font-medium" :class="isDark ? 'text-zinc-400' : 'text-zinc-600'">
+          Arahkan kamera ke QR Code di layar perangkat pembeli untuk mendeteksi secara otomatis.
+        </p>
       </div>
     </div>
 
     <!-- Banner Notifikasi Scan Berhasil -->
-    <div v-if="scanSuccessBanner" class="bg-[#C8F53F] border-3 border-black text-black p-5 rounded-3xl shadow-[6px_6px_0px_#1A1A1A] flex items-center justify-between gap-4 animate-bounce">
+    <div 
+      v-if="scanSuccessBanner" 
+      :class="isDark ? 'bg-zinc-900 border-emerald-500 text-zinc-100' : 'bg-emerald-50 border-2 border-emerald-600 text-emerald-950 shadow-[4px_4px_0px_#059669]'"
+      class="p-5 rounded-3xl border-2 flex items-center justify-between gap-4 transition-all"
+    >
       <div class="flex items-center gap-3">
         <span class="text-3xl">✅</span>
         <div>
-          <h3 class="font-black text-lg tracking-wide uppercase text-slate-900">Scan QR Code Berhasil & Dicatat di Admin!</h3>
-          <p class="text-xs font-bold">
-            Kode Pesanan: <span class="font-mono bg-white px-2 py-0.5 rounded border border-black text-black font-black">{{ scanSuccessCode }}</span>. Transaksi terdeteksi! Mohon proses pembayaran / konfirmasi dan berikan Struk atau Invoice langsung kepada pelanggan.
+          <h3 class="font-black text-base tracking-wide uppercase">Scan QR Code Berhasil & Terkonfirmasi!</h3>
+          <p class="text-xs font-medium mt-0.5">
+            Kode Pesanan: <span class="font-mono font-black px-2 py-0.5 rounded border" :class="isDark ? 'bg-black text-white border-zinc-700' : 'bg-white text-black border-black'">{{ scanSuccessCode }}</span>. Transaksi siap diproses di kasir.
           </p>
         </div>
       </div>
-      <button @click="scanSuccessBanner = false" class="bg-black text-white hover:bg-slate-800 font-black text-xs px-3.5 py-2 rounded-xl border-2 border-black">
-        ✕ Tutup Notifikasi
+      <button 
+        @click="scanSuccessBanner = false" 
+        :class="isDark ? 'bg-white text-black border-white' : 'bg-black text-white border-black'"
+        class="font-black text-xs px-3.5 py-2 rounded-xl border-2 cursor-pointer shrink-0"
+      >
+        ✕ Tutup
       </button>
     </div>
 
-    <!-- Scanned / Active Selected Order View -->
+    <!-- Scanned / Active Selected Order Detail Card -->
     <div v-if="selectedOrder" id="selected-order-section" class="order-card space-y-4">
       <div 
-        :class="isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-[#FFF8EC] border-2.5 border-black shadow-[5px_5px_0px_#1A1A1A] text-slate-900'"
-        class="rounded-3xl p-6 relative transition-colors duration-300"
+        :class="isDark ? 'bg-zinc-900 border-zinc-700 text-zinc-100' : 'bg-white border-2 border-black shadow-[4px_4px_0px_#000000] text-black'"
+        class="rounded-3xl p-6 relative border-2 transition-colors duration-300"
       >
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 mb-5" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
           <div>
-            <h2 class="text-2xl font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-900'">
-              Kode Pesanan : <span :class="isDark ? 'text-indigo-400' : 'bg-[#FFE566] text-black px-2 py-0.5 rounded-lg border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="font-mono uppercase">{{ selectedOrder.kode_pesanan }}</span>
+            <h2 class="text-xl sm:text-2xl font-black tracking-tight" :class="isDark ? 'text-white' : 'text-black'">
+              Kode Pesanan: <span class="font-mono uppercase font-black">{{ selectedOrder.kode_pesanan }}</span>
             </h2>
-            <p class="text-xs font-bold mt-1" :class="isDark ? 'text-slate-400' : 'text-slate-700'">Pelanggan: {{ selectedOrder.user_name || selectedOrder.pelanggan || 'User' }}</p>
+            <p class="text-xs font-medium mt-1 text-zinc-400">
+              Pelanggan: <span class="font-bold" :class="isDark ? 'text-zinc-200' : 'text-black'">{{ selectedOrder.user_name || selectedOrder.pelanggan || 'User' }}</span> • Tanggal: {{ formatDate(selectedOrder.created_at) }}
+            </p>
           </div>
           <div class="flex items-center gap-2">
-            <span :class="getStatusBadgeClass(selectedOrder.status)" class="text-xs font-black uppercase px-3 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#1A1A1A]">
+            <span :class="getStatusBadgeClass(selectedOrder.status)" class="text-xs font-black uppercase font-mono px-3 py-1 rounded-full border">
               {{ selectedOrder.status }}
             </span>
-            <button @click="selectedOrder = null" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]'" class="text-xs font-black px-2.5 py-1 rounded-xl">
-              ✕ Tutup
+            <button 
+              @click="selectedOrder = null" 
+              :class="isDark ? 'bg-zinc-800 text-zinc-300 hover:text-white' : 'bg-zinc-100 text-black border border-zinc-300 hover:bg-zinc-200'"
+              class="text-xs font-black px-3 py-1 rounded-xl cursor-pointer"
+            >
+              ✕ Tutup Detail
             </button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
-          <!-- Table Section -->
+          <!-- Table Items Section -->
           <div class="lg:col-span-3 overflow-x-auto">
             <table 
-              :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-white border-2 border-black shadow-[2px_2px_0px_#1A1A1A] text-slate-900'"
-              class="w-full text-left text-xs"
+              :class="isDark ? 'bg-zinc-950 border-zinc-800 text-zinc-200' : 'bg-zinc-50 border-2 border-black text-black'"
+              class="w-full text-left text-xs rounded-2xl overflow-hidden border"
             >
               <thead>
-                <tr :class="isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-[#FFE566] text-black border-b-2 border-black'" class="font-black uppercase text-[10px] tracking-wider">
-                  <th class="px-4 py-2.5">Judul Buku</th>
-                  <th class="px-4 py-2.5">Tanggal</th>
-                  <th class="px-4 py-2.5 text-center">Qty</th>
-                  <th class="px-4 py-2.5 text-right">Harga Satuan</th>
-                  <th class="px-4 py-2.5 text-right">Subtotal</th>
+                <tr :class="isDark ? 'bg-zinc-900 text-zinc-300 border-zinc-800' : 'bg-zinc-200 text-black border-b border-black'" class="font-black font-mono uppercase text-[10px] tracking-wider border-b">
+                  <th class="px-4 py-3">Judul Buku</th>
+                  <th class="px-4 py-3 text-center">Qty</th>
+                  <th class="px-4 py-3 text-right font-mono">Harga Satuan</th>
+                  <th class="px-4 py-3 text-right font-mono">Subtotal</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-black/20 font-bold">
-                <tr v-for="detail in (selectedOrder.details || selectedOrder.items || [])" :key="detail.id" class="hover:bg-slate-50 transition-colors">
-                  <td class="px-4 py-2.5 font-black">{{ detail.buku?.judul || detail.nama_buku }}</td>
-                  <td class="px-4 py-2.5 text-slate-600">{{ formatDate(selectedOrder.created_at) }}</td>
-                  <td class="px-4 py-2.5 text-center font-black">{{ detail.qty }}</td>
-                  <td class="px-4 py-2.5 text-right">Rp.{{ formatPrice(detail.harga_satuan) }}</td>
-                  <td class="px-4 py-2.5 text-right font-black">Rp.{{ formatPrice(detail.subtotal) }}</td>
+              <tbody class="divide-y font-bold" :class="isDark ? 'divide-zinc-800' : 'divide-zinc-200'">
+                <tr v-for="detail in (selectedOrder.details || selectedOrder.items || [])" :key="detail.id" class="transition-colors">
+                  <td class="px-4 py-3 font-black">{{ detail.buku?.judul || detail.nama_buku }}</td>
+                  <td class="px-4 py-3 text-center font-mono font-black">{{ detail.qty }}</td>
+                  <td class="px-4 py-3 text-right font-mono text-zinc-400">Rp {{ formatPrice(detail.harga_satuan) }}</td>
+                  <td class="px-4 py-3 text-right font-mono font-black" :class="isDark ? 'text-white' : 'text-black'">Rp {{ formatPrice(detail.subtotal) }}</td>
                 </tr>
-                <tr :class="isDark ? 'bg-slate-800 text-white' : 'bg-[#C8F53F] text-black border-t-2 border-black'" class="font-black text-xs">
-                  <td colspan="5" class="px-4 py-2.5 text-right">
-                    Total Tagihan : Rp. {{ formatPrice(selectedOrder.total_harga) }}
+                <tr :class="isDark ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-black border-t-2 border-black'" class="font-black text-xs">
+                  <td colspan="4" class="px-4 py-3 text-right font-mono text-sm">
+                    Total Tagihan: <span class="font-black">Rp {{ formatPrice(selectedOrder.total_harga) }}</span>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <!-- QR Code Display -->
-          <div :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="lg:col-span-1 flex flex-col items-center justify-center p-2 rounded-2xl">
+          <!-- QR Code Display Box -->
+          <div :class="isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-50 border-2 border-black shadow-[2px_2px_0px_#000000]'" class="lg:col-span-1 flex flex-col items-center justify-center p-4 rounded-2xl border">
             <QrCodeDisplay :value="selectedOrder.kode_pesanan" :size="130" show-label />
-            <p class="text-[10px] text-slate-900 font-black text-center mt-1">✔ QR Code Terverifikasi</p>
+            <p class="text-[10px] font-mono font-bold text-center mt-2 text-zinc-400">✔ QR Code Terverifikasi</p>
           </div>
         </div>
       </div>
 
-      <!-- Action Row for Cashier -->
-      <div class="flex flex-col sm:flex-row gap-3 print:hidden">
+      <!-- Action Buttons Row for Cashier -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 print:hidden">
         <button 
           v-if="selectedOrder.status === 'pending'"
           @click="confirmOrder(selectedOrder)"
-          class="flex-1 bg-[#D4B8FF] hover:bg-[#c39eff] border-2 border-black text-black font-black text-sm py-3 rounded-2xl shadow-[3px_3px_0px_#1A1A1A] transition-all"
+          :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000] hover:bg-zinc-800'"
+          class="font-black text-xs py-3 px-4 rounded-2xl border-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
           ✔ Konfirmasi Pesanan
         </button>
@@ -156,62 +247,99 @@
         <button 
           v-if="selectedOrder.status === 'confirmed'"
           @click="openPayModal(selectedOrder)"
-          class="flex-1 bg-[#C8F53F] hover:bg-[#b8e82f] border-2 border-black text-black font-black text-sm py-3 rounded-2xl shadow-[3px_3px_0px_#1A1A1A] transition-all"
+          :class="isDark ? 'bg-emerald-600 text-white border-emerald-500 shadow-[2px_2px_0px_#ffffff] hover:bg-emerald-500' : 'bg-emerald-600 text-white border-black shadow-[2px_2px_0px_#000000] hover:bg-emerald-700'"
+          class="font-black text-xs py-3 px-4 rounded-2xl border-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
-          💵 Bayar Uang Tunai
+          💵 Bayar Uang Tunai / Kasir
         </button>
 
         <button 
           @click="printReceipt" 
-          :class="isDark ? 'bg-slate-800 text-white border-slate-700' : 'bg-[#FFE566] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
-          class="flex-1 font-black text-sm py-3 rounded-2xl transition-all"
+          :class="isDark ? 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000] hover:bg-zinc-100'"
+          class="font-black text-xs py-3 px-4 rounded-2xl border-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
-          🖨️ Print Struk Kasir
+          🖨️ Cetak Struk Kasir
         </button>
 
         <button 
           @click="downloadInvoicePdf(selectedOrder.id)" 
-          class="flex-1 bg-[#FFD4A3] hover:bg-[#ffc68a] border-2 border-black text-black font-black text-sm py-3 rounded-2xl shadow-[3px_3px_0px_#1A1A1A] transition-all"
+          :class="isDark ? 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000] hover:bg-zinc-100'"
+          class="font-black text-xs py-3 px-4 rounded-2xl border-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
         >
           📄 Unduh Invoice PDF
         </button>
       </div>
     </div>
 
-    <!-- Orders Grid Table -->
-    <div :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-[#FFF8EC] border-2.5 border-black shadow-[4px_4px_0px_#1A1A1A] text-slate-900'" class="rounded-3xl overflow-hidden">
-      <div v-if="loading" class="text-center py-16 text-slate-700 font-black">Memuat daftar pesanan...</div>
-      <div v-else-if="filteredOrders.length === 0" class="text-center py-16 text-slate-700 font-black">
-        Tidak ada pesanan ditemukan.
+    <!-- Orders Grid Table Section -->
+    <div 
+      :class="isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-2 border-black shadow-[4px_4px_0px_#000000]'" 
+      class="rounded-3xl overflow-hidden border-2 transition-colors duration-300"
+    >
+      <div v-if="loading" :class="isDark ? 'text-zinc-500' : 'text-zinc-600'" class="text-center py-16 text-xs font-black flex flex-col items-center gap-2">
+        <span class="text-2xl animate-spin">⏳</span>
+        <span>Memuat data antrean pesanan kasir...</span>
       </div>
+
+      <div v-else-if="filteredOrders.length === 0" :class="isDark ? 'text-zinc-400' : 'text-zinc-600'" class="text-center py-16 text-xs font-bold space-y-2">
+        <div class="text-4xl">🛒</div>
+        <p class="text-sm font-black" :class="isDark ? 'text-white' : 'text-black'">Tidak ada pesanan ditemukan</p>
+      </div>
+
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr :class="isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-[#FFE566] text-black border-b-2 border-black'" class="font-black uppercase text-[10px] tracking-wider">
-              <th class="px-4 py-3">Kode Pesanan</th>
-              <th class="px-4 py-3">Pelanggan</th>
-              <th class="px-4 py-3">Tanggal</th>
-              <th class="px-4 py-3">Total Tagihan</th>
-              <th class="px-4 py-3">Status</th>
-              <th class="px-4 py-3 text-right">Aksi</th>
+            <tr :class="isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-800' : 'bg-zinc-100 text-black border-b-2 border-black'" class="font-black font-mono uppercase text-[10px] tracking-wider border-b">
+              <th class="px-4 py-3.5">Kode Pesanan</th>
+              <th class="px-4 py-3.5">Nama Pelanggan</th>
+              <th class="px-4 py-3.5">Tanggal</th>
+              <th class="px-4 py-3.5 font-mono">Total Tagihan</th>
+              <th class="px-4 py-3.5 text-center">Status</th>
+              <th class="px-4 py-3.5 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-black/20 font-bold">
-            <tr v-for="order in paginatedOrders" :key="order.id" :class="isDark ? 'hover:bg-slate-800/60' : 'hover:bg-white/80'" class="transition-colors">
-              <td class="px-4 py-3 font-mono font-black text-slate-900 uppercase">
-                <span class="bg-white border border-black px-1.5 py-0.5 rounded shadow-[1px_1px_0px_#1A1A1A]">{{ order.kode_pesanan }}</span>
+          <tbody class="divide-y font-bold" :class="isDark ? 'divide-zinc-800/80' : 'divide-zinc-200'">
+            <tr v-for="order in paginatedOrders" :key="order.id" :class="isDark ? 'hover:bg-zinc-800/50' : 'hover:bg-zinc-50/90'" class="transition-colors group">
+              <!-- Kode Pesanan -->
+              <td class="px-4 py-3.5 font-mono font-black uppercase">
+                <span 
+                  :class="isDark ? 'bg-zinc-950 border-zinc-700 text-zinc-200' : 'bg-white border border-black text-black shadow-[1px_1px_0px_#000000]'" 
+                  class="px-2 py-0.5 rounded-lg border inline-block"
+                >
+                  {{ order.kode_pesanan }}
+                </span>
               </td>
-              <td class="px-4 py-3 font-black">{{ order.user_name || order.pelanggan || 'User' }}</td>
-              <td class="px-4 py-3 text-slate-700">{{ formatDate(order.created_at) }}</td>
-              <td class="px-4 py-3 font-black text-slate-900">Rp. {{ formatPrice(order.total_harga) }}</td>
-              <td class="px-4 py-3">
-                <span :class="getStatusBadgeClass(order.status)" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-black shadow-[1.5px_1.5px_0px_#1A1A1A]">
+
+              <!-- Pelanggan -->
+              <td class="px-4 py-3.5 font-black" :class="isDark ? 'text-white' : 'text-black'">
+                {{ order.user_name || order.pelanggan || 'User' }}
+              </td>
+
+              <!-- Tanggal -->
+              <td class="px-4 py-3.5 font-mono text-zinc-400">
+                {{ formatDate(order.created_at) }}
+              </td>
+
+              <!-- Total Tagihan -->
+              <td class="px-4 py-3.5 font-mono font-black" :class="isDark ? 'text-white' : 'text-black'">
+                Rp {{ formatPrice(order.total_harga) }}
+              </td>
+
+              <!-- Status Badge -->
+              <td class="px-4 py-3.5 text-center whitespace-nowrap">
+                <span :class="getStatusBadgeClass(order.status)" class="text-[10px] font-black uppercase font-mono px-3 py-0.5 rounded-full border inline-block">
                   {{ order.status }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-right">
-                <button @click="selectOrder(order)" :class="isDark ? 'bg-slate-800 text-indigo-300' : 'bg-[#C8F53F] hover:bg-[#b8e82f] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all active:translate-x-[1px] active:translate-y-[1px]">
-                  Detail Struk
+
+              <!-- Aksi -->
+              <td class="px-4 py-3.5 text-right">
+                <button 
+                  @click="selectOrder(order)" 
+                  :class="isDark ? 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700' : 'bg-black text-white border-black shadow-[1.5px_1.5px_0px_#000000] hover:bg-zinc-800'"
+                  class="px-3.5 py-1.5 rounded-xl font-black text-xs transition-all border cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Detail Struk &rarr;
                 </button>
               </td>
             </tr>
@@ -220,13 +348,17 @@
       </div>
 
       <!-- Pagination Controls -->
-      <div v-if="totalPages > 1" class="p-4 border-t" :class="isDark ? 'border-slate-800' : 'border-black'">
-        <div class="flex items-center justify-center gap-2 flex-wrap">
+      <div v-if="totalPages > 1" class="p-4 border-t flex items-center justify-between flex-wrap gap-2 text-xs" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
+        <span class="font-mono text-zinc-400">
+          Halaman {{ currentPage }} dari {{ totalPages }}
+        </span>
+
+        <div class="flex items-center gap-1.5 flex-wrap">
           <button 
             @click="currentPage = 1"
             :disabled="currentPage === 1"
-            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
-            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+            :class="isDark ? 'bg-zinc-800 text-zinc-300 disabled:opacity-40' : 'bg-white text-black border border-zinc-300 disabled:opacity-40'"
+            class="px-2.5 py-1.5 rounded-lg font-mono font-bold transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             « Awal
           </button>
@@ -234,32 +366,30 @@
           <button 
             @click="currentPage--"
             :disabled="currentPage === 1"
-            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
-            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+            :class="isDark ? 'bg-zinc-800 text-zinc-300 disabled:opacity-40' : 'bg-white text-black border border-zinc-300 disabled:opacity-40'"
+            class="px-2.5 py-1.5 rounded-lg font-mono font-bold transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             ‹ Sebelumnya
           </button>
 
-          <div class="flex items-center gap-1">
-            <button 
-              v-for="page in totalPages"
-              :key="page"
-              @click="currentPage = page"
-              :class="currentPage === page
-                ? (isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]')
-                : (isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-black border border-black')
-              "
-              class="w-8 h-8 rounded-lg font-black text-xs transition-all flex items-center justify-center"
-            >
-              {{ page }}
-            </button>
-          </div>
+          <button 
+            v-for="page in totalPages"
+            :key="page"
+            @click="currentPage = page"
+            :class="currentPage === page
+              ? (isDark ? 'bg-white text-black border-white shadow-[1px_1px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[1px_1px_0px_#000000]')
+              : (isDark ? 'bg-zinc-900 text-zinc-400 border-zinc-800' : 'bg-white text-black border border-zinc-300')
+            "
+            class="w-7 h-7 rounded-lg font-mono font-black text-xs transition-all flex items-center justify-center cursor-pointer border"
+          >
+            {{ page }}
+          </button>
 
           <button 
             @click="currentPage++"
             :disabled="currentPage === totalPages"
-            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
-            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+            :class="isDark ? 'bg-zinc-800 text-zinc-300 disabled:opacity-40' : 'bg-white text-black border border-zinc-300 disabled:opacity-40'"
+            class="px-2.5 py-1.5 rounded-lg font-mono font-bold transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             Berikutnya ›
           </button>
@@ -267,101 +397,114 @@
           <button 
             @click="currentPage = totalPages"
             :disabled="currentPage === totalPages"
-            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
-            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+            :class="isDark ? 'bg-zinc-800 text-zinc-300 disabled:opacity-40' : 'bg-white text-black border border-zinc-300 disabled:opacity-40'"
+            class="px-2.5 py-1.5 rounded-lg font-mono font-bold transition-all cursor-pointer disabled:cursor-not-allowed"
           >
             Akhir »
           </button>
-
-          <span :class="isDark ? 'text-slate-400' : 'text-slate-700'" class="text-xs font-bold ml-2">
-            Hal {{ currentPage }} dari {{ totalPages }}
-          </span>
         </div>
       </div>
     </div>
 
-    <!-- Modal Pembayaran Tunai -->
-    <div v-if="showPayModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div :class="isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-[#FFF8EC] border-3 border-black text-slate-900 shadow-[6px_6px_0px_#1A1A1A]'" class="rounded-3xl p-6 max-w-md w-full space-y-4">
-        <div class="border-b-2 border-black pb-3">
-          <h3 class="font-black text-lg">Kasir Pembayaran Tunai</h3>
-          <p class="text-xs font-bold text-slate-700">Kode Pesanan: <span class="font-mono font-black bg-[#FFE566] px-1.5 py-0.5 rounded border border-black uppercase">{{ activePayOrder?.kode_pesanan }}</span></p>
+    <!-- Modal Pembayaran Tunai (Cashier Payment) -->
+    <div v-if="showPayModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div 
+        :class="isDark ? 'bg-zinc-900 border-zinc-700 text-zinc-100 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]' : 'bg-white border-2 border-black text-black shadow-[6px_6px_0px_#000000]'" 
+        class="rounded-3xl p-6 max-w-md w-full space-y-4 border-2 transition-all"
+      >
+        <div class="border-b pb-3" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
+          <h3 class="font-black text-lg tracking-tight">💵 Kasir Pembayaran Tunai</h3>
+          <p class="text-xs text-zinc-400 font-medium mt-0.5">
+            Kode Pesanan: <span class="font-mono font-bold uppercase">{{ activePayOrder?.kode_pesanan }}</span>
+          </p>
         </div>
 
-        <div :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="p-4 rounded-2xl text-center">
-          <span class="text-xs text-slate-600 block font-bold">Total Tagihan Harus Dibayar</span>
-          <span class="text-2xl font-black text-black">Rp. {{ formatPrice(activePayOrder?.total_harga || 0) }}</span>
+        <div :class="isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-50 border-2 border-black shadow-[2px_2px_0px_#000000]'" class="p-4 rounded-2xl text-center border">
+          <span class="text-xs text-zinc-400 block font-bold uppercase font-mono">Total Tagihan</span>
+          <span class="text-2xl font-black font-mono mt-1 block" :class="isDark ? 'text-white' : 'text-black'">
+            Rp {{ formatPrice(activePayOrder?.total_harga || 0) }}
+          </span>
         </div>
 
         <form @submit.prevent="processPayment" class="space-y-4">
-  <div>
-    <label class="block text-xs font-black mb-2" :class="isDark ? 'text-slate-300' : 'text-slate-900'">
-      Pilih Nominal Uang Tunai
-    </label>
+          <div>
+            <label class="block text-xs font-black font-mono uppercase text-zinc-400 mb-2">
+              Pilih Cepat Pecahan Uang Tunai
+            </label>
 
-    <!-- Quick-select denomination buttons -->
-    <div class="grid grid-cols-4 gap-2 mb-3">
-      <button
-        v-for="d in denominations"
-        :key="d"
-        type="button"
-        @click="addCash(d)"
-        :class="isDark ? 'bg-slate-800 text-slate-200 hover:bg-slate-700' : 'bg-white text-slate-900 border-2 border-black shadow-[2px_2px_0px_#1A1A1A] hover:bg-[#FFE566] active:translate-x-[1px] active:translate-y-[1px]'"
-        class="py-2 rounded-xl font-black text-[11px] transition-all"
-      >
-        +{{ formatShort(d) }}
-      </button>
-    </div>
+            <!-- Quick-select denomination buttons -->
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <button
+                v-for="d in denominations"
+                :key="d"
+                type="button"
+                @click="addCash(d)"
+                :class="isDark ? 'bg-zinc-950 border-zinc-700 text-zinc-200 hover:border-white' : 'bg-zinc-100 text-black border-2 border-black shadow-[1.5px_1.5px_0px_#000000] hover:bg-zinc-200'"
+                class="py-2 rounded-xl font-mono font-black text-xs transition-all border cursor-pointer active:scale-95"
+              >
+                +{{ formatShort(d) }}
+              </button>
+            </div>
 
-    <div class="flex gap-2 mb-3">
-      <button
-        type="button"
-        @click="setExactCash"
-        :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'"
-        class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all"
-      >
-        💵 Uang Pas
-      </button>
-      <button
-        type="button"
-        @click="resetCash"
-        :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'"
-        class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all"
-      >
-        ↺ Reset
-      </button>
-    </div>
+            <div class="flex gap-2 mb-3">
+              <button
+                type="button"
+                @click="setExactCash"
+                :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]'"
+                class="flex-1 py-2 rounded-xl font-black text-xs transition-all border-2 cursor-pointer"
+              >
+                💵 Uang Pas
+              </button>
+              <button
+                type="button"
+                @click="resetCash"
+                :class="isDark ? 'bg-zinc-800 text-zinc-300 border-zinc-700' : 'bg-zinc-100 text-black border-2 border-zinc-300 hover:bg-zinc-200'"
+                class="flex-1 py-2 rounded-xl font-black text-xs transition-all border cursor-pointer"
+              >
+                ↺ Reset
+              </button>
+            </div>
 
-    <label class="block text-xs font-black mb-1" :class="isDark ? 'text-slate-300' : 'text-slate-900'">
-      Atau Ketik Manual (Rp)
-    </label>
-    <input 
-      v-model.number="cashInput" 
-      type="number" 
-      required 
-      :min="activePayOrder?.total_harga" 
-      :class="isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-white border-2 border-black text-slate-900 shadow-[2px_2px_0px_#1A1A1A]'"
-      class="w-full px-4 py-3 text-base font-black rounded-xl outline-none" 
-      placeholder="100000" 
-    />
-  </div>
+            <label class="block text-xs font-black font-mono uppercase text-zinc-400 mb-1">
+              Atau Ketik Nominal Tunai (Rp)
+            </label>
+            <input 
+              v-model.number="cashInput" 
+              type="number" 
+              required 
+              :min="activePayOrder?.total_harga" 
+              :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white focus:border-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
+              class="w-full px-4 py-2.5 text-sm font-mono font-black rounded-xl outline-none border-2 transition-all" 
+              placeholder="0" 
+            />
+          </div>
 
-  <div :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-[#C8F53F] border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="p-3.5 rounded-xl flex justify-between items-center text-xs">
-    <span class="font-black">Uang Kembalian:</span>
-    <span :class="computedKembalian >= 0 ? 'text-black font-black text-base' : 'text-rose-600 font-black'">
-      Rp. {{ formatPrice(computedKembalian) }}
-    </span>
-  </div>
+          <div :class="isDark ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-50 border-2 border-black'" class="p-3.5 rounded-xl flex justify-between items-center text-xs border">
+            <span class="font-black font-mono uppercase text-zinc-400">Uang Kembalian:</span>
+            <span :class="computedKembalian >= 0 ? (isDark ? 'text-emerald-400' : 'text-emerald-700') : 'text-rose-500'" class="font-black font-mono text-base">
+              Rp {{ formatPrice(computedKembalian) }}
+            </span>
+          </div>
 
-  <div class="flex justify-end gap-3 pt-2">
-    <button type="button" @click="showPayModal = false" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="px-4 py-2 text-xs font-black rounded-xl">
-      Batal
-    </button>
-    <button type="submit" :disabled="submittingPay || computedKembalian < 0" class="px-5 py-2.5 text-xs font-black text-black bg-[#C8F53F] hover:bg-[#b8e82f] border-2 border-black rounded-xl shadow-[3px_3px_0px_#1A1A1A] transition-all disabled:opacity-50">
-      Selesaikan Pembayaran & Lunas
-    </button>
-  </div>
-</form>
+          <div class="flex justify-end gap-2.5 pt-2 border-t" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
+            <button 
+              type="button" 
+              @click="showPayModal = false" 
+              :class="isDark ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700' : 'bg-zinc-100 text-black border-2 border-zinc-300 hover:bg-zinc-200'" 
+              class="px-4 py-2 text-xs font-black rounded-xl cursor-pointer"
+            >
+              Batal
+            </button>
+            <button 
+              type="submit" 
+              :disabled="submittingPay || computedKembalian < 0" 
+              :class="isDark ? 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-500 shadow-[2px_2px_0px_#ffffff]' : 'bg-emerald-600 text-white border-2 border-black rounded-xl shadow-[2px_2px_0px_#000000] hover:bg-emerald-700'"
+              class="px-5 py-2.5 text-xs font-black transition-all disabled:opacity-50 cursor-pointer rounded-xl"
+            >
+              {{ submittingPay ? 'Memproses...' : 'Selesaikan Pembayaran & Lunas' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -375,7 +518,13 @@ definePageMeta({
   middleware: 'admin'
 })
 
+useHead({
+  title: 'Kasir & Scan QR - Admin TokoBukuDigital'
+})
+
 const api = useApi()
+const { isDark } = useTheme()
+
 const orders = ref<any[]>([])
 const loading = ref(true)
 const filterStatus = ref('')
@@ -424,27 +573,29 @@ const formatPrice = (val: number) => {
 }
 
 const formatDate = (dateStr: string) => {
-  if (!dateStr) return '21/4/2026'
+  if (!dateStr) return '-'
   const d = new Date(dateStr)
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
 }
 
-const { isDark } = useTheme()
+const pendingOrdersCount = computed(() => orders.value.filter(o => o.status === 'pending').length)
+const confirmedOrdersCount = computed(() => orders.value.filter(o => o.status === 'confirmed').length)
+const completedOrdersCount = computed(() => orders.value.filter(o => o.status === 'completed').length)
 
 const getStatusBadgeClass = (status: string) => {
   if (isDark.value) {
     switch (status) {
-      case 'pending': return 'bg-amber-950/80 text-amber-300 border-amber-600'
-      case 'confirmed': return 'bg-sky-950/80 text-sky-300 border-sky-600'
-      case 'completed': return 'bg-emerald-950/80 text-emerald-300 border-emerald-600'
-      default: return 'bg-slate-800 text-slate-300 border-slate-700'
+      case 'pending': return 'bg-amber-950/60 text-amber-300 border-amber-800'
+      case 'confirmed': return 'bg-sky-950/60 text-sky-300 border-sky-800'
+      case 'completed': return 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
+      default: return 'bg-zinc-800 text-zinc-300 border-zinc-700'
     }
   }
   switch (status) {
-    case 'pending': return 'bg-amber-200 text-amber-950 border-amber-400'
-    case 'confirmed': return 'bg-sky-200 text-sky-950 border-sky-400'
-    case 'completed': return 'bg-emerald-200 text-emerald-950 border-emerald-400'
-    default: return 'bg-slate-200 text-slate-900 border-slate-400'
+    case 'pending': return 'bg-amber-50 text-amber-900 border-amber-300'
+    case 'confirmed': return 'bg-sky-50 text-sky-900 border-sky-300'
+    case 'completed': return 'bg-emerald-50 text-emerald-900 border-emerald-300'
+    default: return 'bg-zinc-100 text-zinc-800 border-zinc-300'
   }
 }
 
@@ -460,7 +611,7 @@ const paginatedOrders = computed(() => {
 })
 
 const totalPages = computed(() => {
-  return Math.ceil(filteredOrders.value.length / itemsPerPage)
+  return Math.ceil(filteredOrders.value.length / itemsPerPage) || 1
 })
 
 const computedKembalian = computed(() => {
@@ -482,6 +633,10 @@ const fetchOrders = async () => {
 
 const selectOrder = (order: any) => {
   selectedOrder.value = order
+  if (process.client) {
+    const el = document.getElementById('selected-order-section')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }
 }
 
 const handleScanSubmit = async () => {
@@ -515,13 +670,12 @@ const handleScanSubmit = async () => {
       }
     }
 
-    // Toast notification for Admin
     const toast = useToast()
-    toast.success(`✅ Scan Berhasil & Tersimpan di Database!\n\nKode Pesanan: ${matched.kode_pesanan}\nPelanggan: ${matched.user_name || matched.pelanggan || 'User'}\nStatus DB: ${matched.status.toUpperCase()}\nTotal: Rp. ${formatPrice(matched.total_harga)}\n\nStatus pesanan otomatis diperbarui ke 'CONFIRMED'.`)
+    toast.success(`Scan Berhasil! Kode: ${matched.kode_pesanan}`)
     await fetchOrders()
   } catch (err: any) {
     const toast = useToast()
-    toast.error(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan di Database!`)
+    toast.error(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan!`)
   }
 }
 
@@ -613,7 +767,7 @@ const processPayment = async () => {
       cash: cashInput.value
     })
     showPayModal.value = false
-    toast.success(res.message || 'Pembayaran berhasil diselesaikan! Struk / Invoice dapat segera diserahkan kepada pelanggan.')
+    toast.success(res.message || 'Pembayaran berhasil diselesaikan!')
     await fetchOrders()
     if (selectedOrder.value && selectedOrder.value.id === activePayOrder.value.id) {
       selectedOrder.value.status = 'completed'
@@ -642,7 +796,6 @@ let lastKeyTime = Date.now()
 
 const onGlobalKeydown = (e: KeyboardEvent) => {
   const currentTime = Date.now()
-  // Hardware scanners type very rapidly (< 50ms per key)
   if (currentTime - lastKeyTime > 100) {
     scannerBuffer = ''
   }
@@ -666,7 +819,6 @@ onMounted(() => {
   }
 })
 
-// Watch filterStatus to reset pagination
 watch(filterStatus, () => {
   currentPage.value = 1
 })

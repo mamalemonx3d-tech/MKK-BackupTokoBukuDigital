@@ -35,7 +35,7 @@
         </div>
 
         <div class="pt-4 border-t-2 border-black">
-          <NuxtLink to="/user/chat" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#C8F53F] text-black border-2 border-black text-xs font-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] transition-all">
+          <NuxtLink to="/chat" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black text-white text-xs font-black hover:bg-zinc-800 transition-all">
             💬 Gunakan Live Chat Langsung
           </NuxtLink>
         </div>

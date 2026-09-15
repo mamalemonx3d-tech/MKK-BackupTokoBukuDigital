@@ -9,14 +9,24 @@ class UserResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $fotoUrl = null;
+        if ($this->foto) {
+            if (str_starts_with($this->foto, 'http')) {
+                $fotoUrl = str_replace('http://localhost/storage', config('app.url') . '/storage', $this->foto);
+            } elseif (str_starts_with($this->foto, 'data:')) {
+                $fotoUrl = $this->foto;
+            } else {
+                $fotoUrl = asset('storage/' . ltrim($this->foto, '/'));
+            }
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'username' => $this->username,
             'email' => $this->email,
-            'no_telp' => $this->no_telp,
             'role' => $this->role,
-            'foto' => $this->foto ? (str_starts_with($this->foto, 'http') ? $this->foto : asset('storage/' . $this->foto)) : null,
+            'foto' => $fotoUrl,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }

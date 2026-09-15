@@ -5,7 +5,6 @@ export interface User {
   name: string
   username: string
   email: string
-  no_telp: string | null
   role: 'admin' | 'user'
   foto: string | null
 }
@@ -40,13 +39,15 @@ export const useAuthStore = defineStore('auth', () => {
       tokenCookie.value = res.token
       if (process.client) {
         localStorage.setItem('auth_token', res.token)
+        document.cookie = `auth_token=${res.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
       }
     }
     user.value = res.user
+    initialized.value = true
     return res
   }
 
-  const register = async (formData: FormData) => {
+  const register = async (formData: FormData | Record<string, any>) => {
     const api = useApi()
     const tokenCookie = useCookie<string | null>('auth_token', { maxAge: 60 * 60 * 24 * 7, sameSite: 'lax', path: '/' })
     const res = await api.post<{ message: string; token: string; user: User }>('/api/register', formData)
@@ -54,9 +55,11 @@ export const useAuthStore = defineStore('auth', () => {
       tokenCookie.value = res.token
       if (process.client) {
         localStorage.setItem('auth_token', res.token)
+        document.cookie = `auth_token=${res.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
       }
     }
     user.value = res.user
+    initialized.value = true
     return res
   }
 
@@ -71,8 +74,10 @@ export const useAuthStore = defineStore('auth', () => {
       tokenCookie.value = null
       if (process.client) {
         localStorage.removeItem('auth_token')
+        document.cookie = 'auth_token=; path=/; max-age=0'
       }
       user.value = null
+      initialized.value = true
       navigateTo('/login')
     }
   }

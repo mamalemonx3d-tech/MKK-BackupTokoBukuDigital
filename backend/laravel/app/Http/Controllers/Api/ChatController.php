@@ -20,26 +20,43 @@ class ChatController extends Controller
             return $this->getConversationForUser($request, $request->user()->id, $adminId ? (int)$adminId : null);
         }
 
-        // Admin view: Get users with recent chat
-        $userIds = Chat::select('user_id')
+        // Admin view: Get users with recent chat for THIS admin
+        $adminId = $request->user()->id;
+        $userIds = Chat::where('admin_id', $adminId)
+            ->select('user_id')
             ->groupBy('user_id')
             ->pluck('user_id');
 
         $users = User::whereIn('id', $userIds)
             ->where('role', 'user')
             ->get()
-            ->map(function ($user) {
-                $lastChat = Chat::where('user_id', $user->id)->latest()->first();
+            ->map(function ($user) use ($adminId) {
+                $lastChat = Chat::where('user_id', $user->id)
+                    ->where('admin_id', $adminId)
+                    ->latest()
+                    ->first();
                 $unread = Chat::where('user_id', $user->id)
+                    ->where('admin_id', $adminId)
                     ->where('sender', 'user')
                     ->where('is_read', false)
                     ->count();
+
+                $fotoUrl = null;
+                if ($user->foto) {
+                    if (str_starts_with($user->foto, 'http')) {
+                        $fotoUrl = str_replace('http://localhost/storage', config('app.url') . '/storage', $user->foto);
+                    } elseif (str_starts_with($user->foto, 'data:')) {
+                        $fotoUrl = $user->foto;
+                    } else {
+                        $fotoUrl = asset('storage/' . ltrim($user->foto, '/'));
+                    }
+                }
 
                 return [
                     'id'              => $user->id,
                     'name'            => $user->name,
                     'username'        => $user->username,
-                    'foto'            => $user->foto ? asset('storage/' . $user->foto) : null,
+                    'foto'            => $fotoUrl,
                     'last_message'    => $lastChat ? $lastChat->pesan : '',
                     'last_message_id' => $lastChat ? $lastChat->id : 0,
                     'last_sender'     => $lastChat ? $lastChat->sender : '',
@@ -61,16 +78,13 @@ class ChatController extends Controller
 
         if ($user->role === 'admin') {
             $count = Chat::where('sender', 'user')
-                ->where(function ($q) {
-                    $q->where('is_read', 0)->orWhere('is_read', false)->orWhereNull('is_read');
-                })
+                ->where('admin_id', $user->id)
+                ->where('is_read', false)
                 ->count();
         } else {
             $count = Chat::where('user_id', $user->id)
                 ->where('sender', 'admin')
-                ->where(function ($q) {
-                    $q->where('is_read', 0)->orWhere('is_read', false)->orWhereNull('is_read');
-                })
+                ->where('is_read', false)
                 ->count();
         }
 
@@ -87,13 +101,18 @@ class ChatController extends Controller
 
         if ($user->role === 'admin') {
             $targetUserId = $request->input('user_id');
-            $query = Chat::where('sender', 'user')->where('is_read', false);
+            $query = Chat::where('sender', 'user')->where('admin_id', $user->id)->where('is_read', false);
             if ($targetUserId) {
                 $query->where('user_id', $targetUserId);
             }
             $query->update(['is_read' => true]);
         } else {
-            Chat::where('user_id', $user->id)->where('sender', 'admin')->where('is_read', false)->update(['is_read' => true]);
+            $adminId = $request->input('admin_id');
+            $query = Chat::where('user_id', $user->id)->where('sender', 'admin')->where('is_read', false);
+            if ($adminId) {
+                $query->where('admin_id', $adminId);
+            }
+            $query->update(['is_read' => true]);
         }
 
         return response()->json(['message' => 'Pesan ditandai sebagai dibaca']);
@@ -106,7 +125,7 @@ class ChatController extends Controller
             return response()->json(['message' => 'Akses ditolak'], 403);
         }
 
-        $adminId = $request->query('admin_id');
+        $adminId = $request->user()->role === 'admin' ? $request->user()->id : $request->query('admin_id');
         return $this->getConversationForUser($request, $userId, $adminId ? (int)$adminId : null);
     }
 
@@ -117,9 +136,7 @@ class ChatController extends Controller
         $query = Chat::with(['user', 'admin'])->where('user_id', $userId);
 
         if ($adminId) {
-            $query->where(function ($q) use ($adminId) {
-                $q->where('admin_id', $adminId)->orWhereNull('admin_id');
-            });
+            $query->where('admin_id', $adminId);
         }
 
         // Exclude messages this user has hidden for themselves
@@ -199,17 +216,26 @@ class ChatController extends Controller
         $data = $admins->map(function ($admin, $index) use ($request) {
             $roleTitles = ['CS Support Utama', 'Layanan Kasir & Pesanan', 'Admin Customer Service'];
             $lastChat   = Chat::where('user_id', $request->user()->id)
-                ->where(function ($q) use ($admin) {
-                    $q->where('admin_id', $admin->id)->orWhereNull('admin_id');
-                })
+                ->where('admin_id', $admin->id)
                 ->latest()
                 ->first();
+
+            $fotoUrl = null;
+            if ($admin->foto) {
+                if (str_starts_with($admin->foto, 'http')) {
+                    $fotoUrl = str_replace('http://localhost/storage', config('app.url') . '/storage', $admin->foto);
+                } elseif (str_starts_with($admin->foto, 'data:')) {
+                    $fotoUrl = $admin->foto;
+                } else {
+                    $fotoUrl = asset('storage/' . ltrim($admin->foto, '/'));
+                }
+            }
 
             return [
                 'id'           => $admin->id,
                 'name'         => $admin->name ?? 'Admin BookStore',
                 'username'     => $admin->username ?? 'admin',
-                'foto'         => $admin->foto ? asset('storage/' . $admin->foto) : null,
+                'foto'         => $fotoUrl,
                 'role_title'   => $roleTitles[$index % count($roleTitles)],
                 'is_online'    => true,
                 'last_message' => $lastChat ? $lastChat->pesan : 'Ada yang bisa saya bantu?',

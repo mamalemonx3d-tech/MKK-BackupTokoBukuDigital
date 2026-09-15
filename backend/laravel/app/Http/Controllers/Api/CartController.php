@@ -19,14 +19,21 @@ class CartController extends Controller
             ->where('user_id', $request->user()->id)
             ->get()
             ->map(function ($cart) {
+                $book = $cart->book;
+                $gambar = null;
+                if ($book?->gambar) {
+                    $gambar = (str_starts_with($book->gambar, 'http') || str_starts_with($book->gambar, 'data:'))
+                        ? $book->gambar
+                        : asset('storage/' . ltrim($book->gambar, '/'));
+                }
                 return [
                     'id'         => $cart->id,
                     'book_id'    => $cart->book_id,
-                    'nama_buku'  => $cart->book?->nama_buku,
-                    'harga_jual' => $cart->book?->harga_jual,
-                    'gambar'     => $cart->book?->gambar,
-                    'stok'       => $cart->book?->stok,
-                    'qty'        => $cart->qty,
+                    'nama_buku'  => $book?->nama_buku,
+                    'harga_jual' => (float) $book?->harga_jual,
+                    'gambar'     => $gambar,
+                    'stok'       => (int) $book?->stok,
+                    'qty'        => (int) $cart->qty,
                 ];
             });
 
@@ -70,16 +77,23 @@ class CartController extends Controller
             ]);
         }
 
+        $gambar = null;
+        if ($book->gambar) {
+            $gambar = (str_starts_with($book->gambar, 'http') || str_starts_with($book->gambar, 'data:'))
+                ? $book->gambar
+                : asset('storage/' . ltrim($book->gambar, '/'));
+        }
+
         return response()->json([
             'message' => 'Berhasil ditambahkan ke keranjang',
             'data'    => [
                 'id'         => $cart->id,
                 'book_id'    => $cart->book_id,
                 'nama_buku'  => $book->nama_buku,
-                'harga_jual' => $book->harga_jual,
-                'gambar'     => $book->gambar,
-                'stok'       => $book->stok,
-                'qty'        => $cart->qty,
+                'harga_jual' => (float) $book->harga_jual,
+                'gambar'     => $gambar,
+                'stok'       => (int) $book->stok,
+                'qty'        => (int) $cart->qty,
             ]
         ], 201);
     }

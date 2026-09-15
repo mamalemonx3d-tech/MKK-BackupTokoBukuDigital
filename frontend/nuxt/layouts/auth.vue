@@ -37,7 +37,7 @@
 
     <!-- Footer Copyright -->
     <footer class="w-full max-w-5xl mx-auto text-center py-3 text-[11px] font-mono opacity-50">
-      &copy; 2026 TokoBukuDigital • MONO Edition
+      &copy; 2026 TokoBukuDigital. All rights reserved.
     </footer>
 
     <!-- Toast Notifications -->

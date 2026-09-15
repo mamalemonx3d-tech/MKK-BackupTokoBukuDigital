@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-[#FFF8EC] text-slate-900 py-12 border-t-2.5 border-[#1A1A1A] mt-20 font-['Space_Grotesk']">
+  <footer class="bg-[#FFF8EC] text-slate-900 py-12 border-t-2.5 border-[#1A1A1A] mt-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
@@ -15,7 +15,7 @@
           <h4 class="text-slate-900 font-black mb-4 uppercase tracking-wider text-xs bg-[#D4B8FF] px-2 py-1 inline-block rounded border-2 border-black shadow-[2px_2px_0px_#1A1A1A]">Navigasi Utama</h4>
           <ul class="space-y-2 text-xs font-bold">
             <li><NuxtLink to="/" class="hover:underline hover:text-indigo-600 transition-colors">Home</NuxtLink></li>
-            <li><NuxtLink to="/user/katalog" class="hover:underline hover:text-indigo-600 transition-colors">Katalog Buku</NuxtLink></li>
+            <li><NuxtLink to="/katalog" class="hover:underline hover:text-indigo-600 transition-colors">Katalog Buku</NuxtLink></li>
             <li><NuxtLink to="/our-story" class="hover:underline hover:text-indigo-600 transition-colors">Our Story</NuxtLink></li>
             <li><NuxtLink to="/blog" class="hover:underline hover:text-indigo-600 transition-colors">Blog & Berita</NuxtLink></li>
           </ul>
@@ -25,7 +25,7 @@
           <ul class="space-y-2 text-xs font-bold">
             <li><NuxtLink to="/contact" class="hover:underline hover:text-indigo-600 transition-colors">Hubungi Kami</NuxtLink></li>
             <li><NuxtLink to="/forget-password" class="hover:underline hover:text-indigo-600 transition-colors">Lupa Password</NuxtLink></li>
-            <li><NuxtLink to="/user/chat" class="hover:underline hover:text-indigo-600 transition-colors">Live Chat Support</NuxtLink></li>
+            <li><NuxtLink to="/chat" class="hover:underline hover:text-indigo-600 transition-colors">Live Chat Support</NuxtLink></li>
           </ul>
         </div>
         <div>

@@ -3,6 +3,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
 
+  experimental: {
+    appManifest: false
+  },
+
   app: {
     head: {
       title: 'TokoBukuDigital',
@@ -13,7 +17,10 @@ export default defineNuxtConfig({
         { name: 'description', content: 'TokoBukuDigital - Platform Toko Buku Online Modern' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap' }
       ]
     }
   },
@@ -22,6 +29,12 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss'
   ],
+
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag.startsWith('dotlottie-')
+    }
+  },
 
   devServer: {
     host: '0.0.0.0',

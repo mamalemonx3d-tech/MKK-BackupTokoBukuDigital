@@ -14,6 +14,7 @@ const cartStore = useCartStore()
 const toast = useToast()
 const api = useApi()
 const { isDark, toggleTheme, initTheme } = useTheme()
+const { getImageUrl } = useImageUrl()
 
 // --- Navigation & Scroll Tracking ---
 const activeSection = ref('hero')
@@ -356,7 +357,7 @@ onUnmounted(() => {
           <!-- Authenticated State -->
           <template v-if="authStore.isAuthenticated">
             <NuxtLink 
-              :to="authStore.isAdmin ? '/admin/buku' : '/user/katalog'"
+              :to="authStore.isAdmin ? '/admin/buku' : '/katalog'"
               class="px-4 py-2 rounded-xl font-black text-xs sm:text-sm border-2 transition-all flex items-center gap-2 cursor-pointer hover:-translate-y-0.5"
               :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]'"
             >
@@ -441,7 +442,7 @@ onUnmounted(() => {
         <div class="pt-4 border-t" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
           <template v-if="authStore.isAuthenticated">
             <NuxtLink 
-              :to="authStore.isAdmin ? '/admin/buku' : '/user/katalog'" 
+              :to="authStore.isAdmin ? '/admin/buku' : '/katalog'" 
               class="w-full py-3 rounded-xl font-black text-center block mb-2 border-2"
               :class="isDark ? 'bg-white text-black border-white' : 'bg-black text-white border-black'"
             >
@@ -527,7 +528,7 @@ onUnmounted(() => {
 
               <!-- Card Image -->
               <div class="h-52 rounded-2xl overflow-hidden border-2 mb-4 relative" :class="isDark ? 'border-zinc-800 bg-zinc-950' : 'border-black bg-zinc-100'">
-                <img :src="booksList[0]?.gambar || defaultBooks[0].gambar" :alt="booksList[0]?.nama_buku || 'Buku'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img :src="getImageUrl(booksList[0]?.gambar) || defaultBooks[0].gambar" :alt="booksList[0]?.nama_buku || 'Buku'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
                   <span class="text-[10px] font-mono font-black uppercase tracking-widest text-zinc-300">{{ booksList[0]?.category_name || 'Buku Pilihan' }}</span>
                   <h3 class="text-lg font-black leading-tight">{{ booksList[0]?.nama_buku || defaultBooks[0].nama_buku }}</h3>
@@ -567,60 +568,59 @@ onUnmounted(() => {
           </div>
 
           <NuxtLink 
-            to="/user/katalog" 
-            class="text-xs sm:text-sm font-black flex items-center gap-1.5 hover:underline cursor-pointer group"
+            to="/katalog" 
+            class="px-5 py-2.5 rounded-xl font-black text-xs border-2 transition-all flex items-center gap-2 self-start md:self-auto cursor-pointer hover:-translate-y-0.5"
+            :class="isDark ? 'bg-zinc-900 border-zinc-700 text-white hover:border-white' : 'bg-white border-black text-black shadow-[3px_3px_0px_#000000] hover:bg-zinc-100'"
           >
             <span>Buka Katalog Lengkap</span>
-            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+            <span class="text-base">&rarr;</span>
           </NuxtLink>
         </div>
 
-        <!-- Filter & Search Controls -->
-        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-10">
-          <!-- Category Chips -->
-          <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none flex-nowrap md:flex-wrap">
-            <button 
-              v-for="cat in categoryList" 
+        <!-- Filter Category Tabs & Search Bar -->
+        <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between mb-8">
+          <!-- Categories Scroll -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+            <button
+              v-for="cat in categoryList"
               :key="cat"
               @click="selectedCategory = cat"
-              class="px-4 py-2 rounded-xl font-bold text-xs border-2 transition-all shrink-0 cursor-pointer"
-              :class="[
-                selectedCategory === cat 
-                  ? (isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]') 
-                  : (isDark ? 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700' : 'bg-white border-zinc-300 text-zinc-700 hover:border-black hover:text-black')
-              ]"
+              class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border-2 cursor-pointer"
+              :class="selectedCategory === cat 
+                ? (isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff]' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000]') 
+                : (isDark ? 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700' : 'bg-white text-zinc-700 border-zinc-300 hover:border-black')"
             >
               {{ cat }}
             </button>
           </div>
 
           <!-- Search Input -->
-          <div class="relative w-full md:w-80">
+          <div class="relative min-w-[260px]">
             <input 
-              v-model="searchQuery" 
+              v-model="searchQuery"
               type="text" 
-              placeholder="Cari judul atau penulis..."
-              class="w-full px-4 py-2.5 pl-10 rounded-xl text-xs sm:text-sm font-medium border-2 outline-none transition-all"
-              :class="isDark ? 'bg-zinc-900 border-zinc-800 text-white focus:border-white placeholder-zinc-500' : 'bg-white border-black text-black shadow-[3px_3px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
+              placeholder="Cari judul buku atau penulis..." 
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs font-medium border-2 outline-none transition-all"
+              :class="isDark ? 'bg-zinc-900 border-zinc-800 text-white placeholder-zinc-500 focus:border-zinc-600' : 'bg-white border-black text-black placeholder-zinc-400 shadow-[2px_2px_0px_#000000]'"
             />
-            <span class="absolute left-3.5 top-3 text-sm opacity-50">🔍</span>
+            <span class="absolute left-3.5 top-2.5 text-sm">🔍</span>
           </div>
         </div>
 
-        <!-- Books Grid -->
-        <div v-if="filteredBooks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Book Cards Grid -->
+        <div v-if="filteredCatalogBooks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div 
-            v-for="book in filteredBooks" 
+            v-for="book in filteredCatalogBooks" 
             :key="book.id"
-            class="rounded-3xl p-5 sm:p-6 border-2 transition-all duration-300 flex flex-col justify-between group relative"
-            :class="isDark ? 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-600 hover:-translate-y-1' : 'bg-white border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1'"
+            class="rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+            :class="isDark ? 'bg-zinc-900/60 border-zinc-800 hover:border-zinc-600' : 'bg-white border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1'"
           >
-            <!-- Favorite Toggle Button -->
+            <!-- Favorite Badge Button -->
             <button 
               @click="toggleFavorite(book.id)"
-              class="absolute top-8 right-8 z-10 w-9 h-9 rounded-full border flex items-center justify-center transition-transform hover:scale-110 cursor-pointer"
-              :class="isDark ? 'bg-black/80 border-zinc-700 text-white' : 'bg-white/90 border-black text-black shadow-sm'"
-              :title="isBookFavorite(book.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'"
+              class="absolute top-8 right-8 z-10 w-8 h-8 rounded-full border flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              :class="isDark ? 'bg-zinc-900/90 border-zinc-700 text-white' : 'bg-white border-black text-black shadow-[1.5px_1.5px_0px_#000000]'"
+              title="Simpan ke Favorit"
             >
               <span class="text-sm">{{ isBookFavorite(book.id) ? '❤️' : '🤍' }}</span>
             </button>
@@ -630,9 +630,10 @@ onUnmounted(() => {
               <div class="h-48 rounded-2xl overflow-hidden border-2 mb-4 relative" :class="isDark ? 'border-zinc-800 bg-zinc-950' : 'border-black bg-zinc-100'">
                 <img 
                   v-if="book.gambar" 
-                  :src="book.gambar" 
+                  :src="getImageUrl(book.gambar)" 
                   :alt="book.nama_buku" 
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  @error="book.gambar = null"
                 />
                 <div v-else class="w-full h-full flex items-center justify-center text-4xl">
                   📕
@@ -934,7 +935,7 @@ onUnmounted(() => {
         </button>
 
         <div class="h-48 sm:h-56 rounded-2xl overflow-hidden border-2 mb-5" :class="isDark ? 'border-zinc-800' : 'border-black'">
-          <img :src="selectedBookPreview.gambar || defaultBooks[0].gambar" :alt="selectedBookPreview.nama_buku" class="w-full h-full object-cover" />
+          <img :src="getImageUrl(selectedBookPreview.gambar) || defaultBooks[0].gambar" :alt="selectedBookPreview.nama_buku" class="w-full h-full object-cover" />
         </div>
 
         <span class="inline-block px-2.5 py-1 rounded-md text-[10px] font-mono font-black uppercase mb-2 border" :class="isDark ? 'bg-black border-zinc-700 text-zinc-300' : 'bg-black text-white border-black'">

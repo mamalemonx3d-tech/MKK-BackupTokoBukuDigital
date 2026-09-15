@@ -10,6 +10,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (!authStore.isAdmin) {
-    return navigateTo('/user/katalog')
+    return navigateTo('/katalog')
   }
 })

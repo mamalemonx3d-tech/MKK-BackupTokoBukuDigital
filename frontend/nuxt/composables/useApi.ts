@@ -15,35 +15,8 @@ export const useApi = () => {
     return ''
   }
 
-  // Fetch CSRF Cookie from Sanctum (for SPA cookie compatibility)
-  const fetchCsrfToken = async () => {
-    try {
-      await $fetch('/sanctum/csrf-cookie', {
-        baseURL: apiBase,
-        credentials: 'include',
-        timeout: 2500
-      })
-    } catch (e) {
-      // Ignore CSRF cookie fetch errors if token is used
-    }
-  }
-
-  // Get XSRF token from document cookie
-  const getXsrfToken = () => {
-    if (process.server) return ''
-    const match = document.cookie.match(new RegExp('(^|; )XSRF-TOKEN=([^;]+)'))
-    return match ? decodeURIComponent(match[2]) : ''
-  }
-
   // Generic request wrapper
   const request = async <T = any>(url: string, options: any = {}): Promise<T> => {
-    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes((options.method || 'GET').toUpperCase())
-    
-    // Fetch CSRF cookie if no bearer token is stored yet
-    if (isMutation && process.client && !getToken() && !url.includes('csrf-cookie')) {
-      await fetchCsrfToken()
-    }
-
     const headers: Record<string, string> = {
       Accept: 'application/json',
       ...(options.headers || {})
@@ -54,23 +27,15 @@ export const useApi = () => {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const xsrf = getXsrfToken()
-    if (xsrf) {
-      headers['X-XSRF-TOKEN'] = xsrf
-    }
-
     return $fetch<T>(url, {
       baseURL: apiBase,
-      credentials: 'include',
       headers,
-      timeout: 4000,
       ...options
     })
   }
 
   return {
     apiBase,
-    fetchCsrfToken,
     request,
     get: <T = any>(url: string, opts: any = {}) => request<T>(url, { ...opts, method: 'GET' }),
     post: <T = any>(url: string, body?: any, opts: any = {}) => request<T>(url, { ...opts, method: 'POST', body }),

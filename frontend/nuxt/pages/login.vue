@@ -34,7 +34,7 @@
             class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-mono tracking-wider font-bold uppercase transition-colors"
             :class="isDark ? 'border-black/20 bg-black/5 text-black' : 'border-white/20 bg-white/10 text-zinc-300'"
           >
-            TokoBukuDigital • MONO
+            TokoBukuDigital
           </div>
           <h3 class="text-2xl font-black leading-tight tracking-tight transition-colors" :class="isDark ? 'text-black' : 'text-white'">
             Ruang Baca & Literatur Kurasi Terbaik.
@@ -99,14 +99,14 @@
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div>
             <label class="block text-xs font-black font-mono uppercase mb-1.5" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
-              Alamat Email
+              Alamat Email / Username
             </label>
             <div class="relative">
               <input 
                 v-model="form.email" 
-                type="email" 
+                type="text" 
                 required 
-                placeholder="nama@email.com" 
+                placeholder="nama@email.com atau username" 
                 class="w-full px-4 py-2.5 sm:py-3 pl-10 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
                 :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
               />
@@ -191,21 +191,21 @@
           <div class="grid grid-cols-2 gap-2 font-mono">
             <button 
               type="button" 
-              @click="fillDemo('admin@example.com', 'password')"
+              @click="fillDemo('admin@bookstore.com', 'password')"
               class="px-2.5 py-1.5 rounded-lg border text-left transition-all hover:scale-102 cursor-pointer"
               :class="isDark ? 'bg-zinc-950 border-zinc-700 text-zinc-300 hover:border-white' : 'bg-zinc-100 border-zinc-300 text-black hover:border-black'"
             >
               <div class="text-[10px] font-black">👑 Akun Admin</div>
-              <div class="text-[9px] opacity-70 truncate">admin@example.com</div>
+              <div class="text-[9px] opacity-70 truncate">admin@bookstore.com</div>
             </button>
             <button 
               type="button" 
-              @click="fillDemo('user@example.com', 'password')"
+              @click="fillDemo('user@bookstore.com', 'password')"
               class="px-2.5 py-1.5 rounded-lg border text-left transition-all hover:scale-102 cursor-pointer"
               :class="isDark ? 'bg-zinc-950 border-zinc-700 text-zinc-300 hover:border-white' : 'bg-zinc-100 border-zinc-300 text-black hover:border-black'"
             >
               <div class="text-[10px] font-black">👤 Akun User</div>
-              <div class="text-[9px] opacity-70 truncate">user@example.com</div>
+              <div class="text-[9px] opacity-70 truncate">user@bookstore.com</div>
             </button>
           </div>
         </div>
@@ -241,21 +241,31 @@ const fillDemo = (email: string, pass: string) => {
 }
 
 const handleLogin = async () => {
+  if (!form.email.trim() || !form.password) {
+    errorMessage.value = 'Silakan isi email/username dan password.'
+    return
+  }
+
   loading.value = true
   errorMessage.value = ''
 
   try {
     await authStore.login({
-      login: form.email,
+      login: form.email.trim(),
       password: form.password
     })
+    
+    const toast = useToast()
+    toast.success('Login berhasil! Selamat datang.')
+
     if (authStore.isAdmin) {
-      navigateTo('/admin/buku')
+      await navigateTo('/admin/buku')
     } else {
-      navigateTo('/user/katalog')
+      await navigateTo('/katalog')
     }
   } catch (err: any) {
-    errorMessage.value = err.data?.message || err.data?.errors?.login?.[0] || 'Login gagal. Periksa kembali email dan password Anda.'
+    console.error('Login error:', err)
+    errorMessage.value = err.data?.message || err.data?.errors?.login?.[0] || err.message || 'Login gagal. Periksa kembali email/username dan password Anda.'
   } finally {
     loading.value = false
   }

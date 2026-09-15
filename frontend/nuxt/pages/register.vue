@@ -114,33 +114,18 @@
             />
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
-                Alamat Email (Untuk Login)
-              </label>
-              <input 
-                v-model="form.email" 
-                type="email" 
-                required 
-                placeholder="nama@email.com" 
-                class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
-                :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
-                No. WhatsApp / HP
-              </label>
-              <input 
-                v-model="form.no_telp" 
-                type="tel" 
-                placeholder="08123456789" 
-                class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
-                :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
-              />
-            </div>
+          <div>
+            <label class="block text-xs font-black font-mono uppercase mb-1" :class="isDark ? 'text-zinc-300' : 'text-zinc-800'">
+              Alamat Email (Untuk Login)
+            </label>
+            <input 
+              v-model="form.email" 
+              type="email" 
+              required 
+              placeholder="nama@email.com" 
+              class="w-full px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm rounded-xl outline-none font-medium border-2 transition-all"
+              :class="isDark ? 'bg-black border-zinc-700 text-white focus:border-white placeholder-zinc-600' : 'bg-zinc-50 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#000000] placeholder-zinc-400'"
+            />
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -218,7 +203,6 @@ const { isDark } = useTheme()
 const form = reactive({
   name: '',
   email: '',
-  no_telp: '',
   password: '',
   password_confirmation: ''
 })
@@ -239,11 +223,10 @@ const handleRegister = async () => {
     const formData = new FormData()
     formData.append('name', form.name)
     formData.append('email', form.email)
-    formData.append('no_telp', form.no_telp)
     formData.append('password', form.password)
 
     await authStore.register(formData)
-    navigateTo('/user/katalog')
+    await navigateTo('/katalog')
   } catch (err: any) {
     const errors = err.data?.errors
     if (errors) {

@@ -14,34 +14,34 @@
 
         <!-- Public Navigation Links -->
         <nav class="hidden md:flex items-center gap-6 text-sm font-black text-slate-900">
-          <NuxtLink to="/" class="hover:bg-[#C8F53F] px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#1A1A1A] transition-all" active-class="bg-[#C8F53F] border-black shadow-[2px_2px_0px_#1A1A1A]">Home</NuxtLink>
-          <NuxtLink to="/user/katalog" class="hover:bg-[#C8F53F] px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#1A1A1A] transition-all" active-class="bg-[#C8F53F] border-black shadow-[2px_2px_0px_#1A1A1A]">Katalog Buku</NuxtLink>
-          <NuxtLink to="/our-story" class="hover:bg-[#C8F53F] px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#1A1A1A] transition-all" active-class="bg-[#C8F53F] border-black shadow-[2px_2px_0px_#1A1A1A]">Our Story</NuxtLink>
-          <NuxtLink to="/blog" class="hover:bg-[#C8F53F] px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#1A1A1A] transition-all" active-class="bg-[#C8F53F] border-black shadow-[2px_2px_0px_#1A1A1A]">Blog</NuxtLink>
-          <NuxtLink to="/contact" class="hover:bg-[#C8F53F] px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#1A1A1A] transition-all" active-class="bg-[#C8F53F] border-black shadow-[2px_2px_0px_#1A1A1A]">Contact</NuxtLink>
+          <NuxtLink to="/" class="hover:bg-zinc-200 px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black transition-all">Home</NuxtLink>
+          <NuxtLink to="/katalog" class="hover:bg-zinc-200 px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black transition-all">Katalog Buku</NuxtLink>
+          <NuxtLink to="/our-story" class="hover:bg-zinc-200 px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black transition-all">Our Story</NuxtLink>
+          <NuxtLink to="/blog" class="hover:bg-zinc-200 px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black transition-all">Blog</NuxtLink>
+          <NuxtLink to="/contact" class="hover:bg-zinc-200 px-3 py-1.5 rounded-xl border-2 border-transparent hover:border-black transition-all">Contact</NuxtLink>
         </nav>
 
         <!-- Right User Actions -->
         <div class="flex items-center gap-4">
           <!-- Cart Icon (For User) -->
-          <NuxtLink to="/user/keranjang" class="relative p-2 rounded-xl bg-[#FFF8EC] border-2 border-black shadow-[2px_2px_0px_#1A1A1A] text-slate-900 transition-transform active:translate-x-[1px] active:translate-y-[1px]">
+          <NuxtLink to="/keranjang" class="relative p-2 rounded-xl bg-white border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
             <span class="text-xl">🛒</span>
-            <span v-if="cartStore.totalItems > 0" class="absolute -top-1.5 -right-1.5 bg-[#FFB7B2] border-2 border-black text-black text-xs font-black w-5 h-5 rounded-full flex items-center justify-center shadow-[1px_1px_0px_#1A1A1A]">
+            <span v-if="cartStore.totalItems > 0" class="absolute -top-1.5 -right-1.5 bg-black text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center">
               {{ cartStore.totalItems }}
             </span>
           </NuxtLink>
 
           <!-- Logged In User / Admin Menu -->
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-3">
-            <NuxtLink v-if="authStore.isAdmin" to="/admin/kategori" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-black rounded-xl bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] transition-transform active:translate-x-[1px] active:translate-y-[1px]">
+            <NuxtLink v-if="authStore.isAdmin" to="/admin/buku" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-black rounded-xl bg-black text-white border-2 border-black">
               ⚙️ Dashboard Admin
             </NuxtLink>
 
-            <NuxtLink v-else to="/user/riwayat" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-black rounded-xl bg-[#D4B8FF] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] transition-transform active:translate-x-[1px] active:translate-y-[1px]">
+            <NuxtLink v-else to="/riwayat" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-black rounded-xl bg-black text-white border-2 border-black">
               📋 Riwayat Pesanan
             </NuxtLink>
 
-            <NuxtLink :to="authStore.isAdmin ? '/admin/chat' : '/user/chat'" class="p-2 rounded-xl bg-[#FFD4A3] border-2 border-black shadow-[2px_2px_0px_#1A1A1A] text-slate-900 transition-transform active:translate-x-[1px] active:translate-y-[1px]" title="Live Chat">
+            <NuxtLink :to="authStore.isAdmin ? '/admin/chat' : '/chat'" class="p-2 rounded-xl bg-white border-2 border-black text-black" title="Live Chat">
               💬
             </NuxtLink>
 
