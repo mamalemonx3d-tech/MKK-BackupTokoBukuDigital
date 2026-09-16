@@ -21,12 +21,23 @@
         </p>
       </div>
 
-      <div 
-        :class="isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-800' : 'bg-zinc-100 text-zinc-800 border-2 border-black shadow-[2px_2px_0px_#000000]'"
-        class="px-3.5 py-2 rounded-2xl border text-xs font-mono font-bold self-start md:self-auto flex items-center gap-2"
-      >
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Akses: Master Admin</span>
+      <div class="flex items-center gap-3 self-start md:self-auto">
+        <button
+          @click="openCreateModal"
+          :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff] hover:bg-zinc-200' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000] hover:bg-zinc-800'"
+          class="px-4 py-2 rounded-2xl border-2 text-xs font-black flex items-center gap-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+        >
+          <span>➕</span>
+          <span>Tambah Pengguna</span>
+        </button>
+
+        <div 
+          :class="isDark ? 'bg-zinc-950 text-zinc-300 border-zinc-800' : 'bg-zinc-100 text-zinc-800 border-2 border-black shadow-[2px_2px_0px_#000000]'"
+          class="px-3.5 py-2 rounded-2xl border text-xs font-mono font-bold flex items-center gap-2"
+        >
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Akses: Master Admin</span>
+        </div>
       </div>
     </div>
 
@@ -254,24 +265,17 @@
                 {{ user.created_at ? user.created_at.split(' ')[0] : '-' }}
               </td>
 
-              <!-- Actions -->
+              <!-- Actions (Delete Only - No Admin Edit User) -->
               <td class="px-4 py-3.5 text-right">
-                <div class="flex items-center justify-end gap-1.5">
-                  <button
-                    @click="openEditModal(user)"
-                    :class="isDark ? 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700 hover:text-white' : 'bg-white border-2 border-black text-black shadow-[1.5px_1.5px_0px_#000000] hover:bg-zinc-100'"
-                    class="w-8 h-8 rounded-xl border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
-                    title="Ubah Peran Pengguna"
-                  >
-                    <LucidePencil class="w-3.5 h-3.5" />
-                  </button>
+                <div class="flex items-center justify-end">
                   <button
                     @click="deleteUser(user)"
                     :class="isDark ? 'bg-rose-950/40 text-rose-300 border-rose-800 hover:bg-rose-900/70' : 'bg-rose-50 text-rose-700 border-2 border-rose-600 shadow-[1.5px_1.5px_0px_#e11d48] hover:bg-rose-100'"
-                    class="w-8 h-8 rounded-xl border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
-                    title="Hapus Pengguna"
+                    class="px-3 py-1.5 rounded-xl border font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105 active:scale-95"
+                    title="Hapus Akun Pengguna"
                   >
                     <LucideTrash2 class="w-3.5 h-3.5" />
+                    <span>Hapus</span>
                   </button>
                 </div>
               </td>
@@ -289,13 +293,13 @@
           Menampilkan <span :class="isDark ? 'text-white' : 'text-black'">{{ filteredUsers.length }}</span> dari total <span :class="isDark ? 'text-white' : 'text-black'">{{ users.length }}</span> pengguna
         </div>
         <div class="text-[11px] text-zinc-500">
-          Perubahan peran langsung berlaku pada sesi login pengguna terkait.
+          ℹ️ Setiap pengguna dapat memperbarui profil dan data mereka secara mandiri melalui halaman Profil.
         </div>
       </div>
     </div>
 
-    <!-- Edit User Role Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <!-- Create User Modal -->
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div
         :class="isDark ? 'bg-zinc-900 border-zinc-700 text-zinc-100 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]' : 'bg-white border-2 border-black text-black shadow-[6px_6px_0px_#000000]'"
         class="rounded-3xl border-2 p-6 sm:p-7 max-w-md w-full space-y-5 transition-all"
@@ -305,14 +309,14 @@
         <div class="flex items-center justify-between border-b pb-4" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
           <div>
             <h3 :class="isDark ? 'text-white' : 'text-black'" class="font-black text-lg sm:text-xl tracking-tight">
-              ✏️ Edit Peran Pengguna
+              ➕ Tambah Pengguna Baru
             </h3>
             <p class="text-xs text-zinc-400 font-medium mt-0.5">
-              Sesuaikan wewenang akses akun untuk pengguna ini.
+              Daftarkan akun administrator atau pembaca baru ke sistem.
             </p>
           </div>
           <button
-            @click="showModal = false"
+            @click="showCreateModal = false"
             :class="isDark ? 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700' : 'bg-zinc-100 text-zinc-700 hover:text-black border border-zinc-300'"
             class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-black transition-all cursor-pointer"
           >
@@ -321,13 +325,14 @@
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="saveUser" class="space-y-4">
+        <form @submit.prevent="createUser" class="space-y-4">
           <div class="space-y-1">
             <label class="block text-xs font-black font-mono uppercase text-zinc-400">Nama Lengkap</label>
             <input
-              v-model="form.name"
+              v-model="createForm.name"
               type="text"
               required
+              placeholder="Contoh: Budi Santoso"
               :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white placeholder-zinc-500 focus:border-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
               class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border-2 font-bold outline-none transition-all"
             />
@@ -336,8 +341,10 @@
           <div class="space-y-1">
             <label class="block text-xs font-black font-mono uppercase text-zinc-400">Username</label>
             <input
-              v-model="form.username"
+              v-model="createForm.username"
               type="text"
+              required
+              placeholder="Contoh: budi_santoso"
               :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white placeholder-zinc-500 focus:border-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
               class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border-2 font-mono font-bold outline-none transition-all"
             />
@@ -346,18 +353,32 @@
           <div class="space-y-1">
             <label class="block text-xs font-black font-mono uppercase text-zinc-400">Alamat Email</label>
             <input
-              v-model="form.email"
+              v-model="createForm.email"
               type="email"
               required
+              placeholder="Contoh: budi@gmail.com"
               :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white placeholder-zinc-500 focus:border-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
               class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border-2 font-bold outline-none transition-all"
             />
           </div>
 
           <div class="space-y-1">
+            <label class="block text-xs font-black font-mono uppercase text-zinc-400">Kata Sandi (Password)</label>
+            <input
+              v-model="createForm.password"
+              type="password"
+              required
+              minlength="6"
+              placeholder="Minimal 6 karakter"
+              :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white placeholder-zinc-500 focus:border-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
+              class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl border-2 font-mono font-bold outline-none transition-all"
+            />
+          </div>
+
+          <div class="space-y-1">
             <label class="block text-xs font-black font-mono uppercase text-zinc-400">Peran Akun (Role)</label>
             <select
-              v-model="form.role"
+              v-model="createForm.role"
               :class="isDark ? 'bg-zinc-950 border-zinc-700 text-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
               class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border-2 font-bold outline-none transition-all cursor-pointer"
             >
@@ -369,7 +390,7 @@
           <div class="flex justify-end gap-2.5 pt-3 border-t" :class="isDark ? 'border-zinc-800' : 'border-zinc-200'">
             <button
               type="button"
-              @click="showModal = false"
+              @click="showCreateModal = false"
               :class="isDark ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700' : 'bg-zinc-100 text-black border-2 border-zinc-300 hover:bg-zinc-200'"
               class="px-4 py-2.5 text-xs font-black rounded-xl transition-all cursor-pointer"
             >
@@ -381,7 +402,7 @@
               :class="isDark ? 'bg-white text-black border-white shadow-[2px_2px_0px_#ffffff] hover:bg-zinc-200' : 'bg-black text-white border-black shadow-[2px_2px_0px_#000000] hover:bg-zinc-800'"
               class="px-5 py-2.5 text-xs font-black rounded-xl border-2 transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
             >
-              {{ submitting ? 'Menyimpan...' : 'Simpan Perubahan' }}
+              {{ submitting ? 'Menyimpan...' : 'Tambah Pengguna' }}
             </button>
           </div>
         </form>
@@ -393,7 +414,6 @@
 <script setup lang="ts">
 import { 
   Search as LucideSearch, 
-  Pencil as LucidePencil, 
   Trash2 as LucideTrash2 
 } from 'lucide-vue-next'
 
@@ -411,8 +431,7 @@ const confirmModal = useConfirmModal()
 
 const users = ref<any[]>([])
 const loading = ref(true)
-const showModal = ref(false)
-const editUserObj = ref<any>(null)
+const showCreateModal = ref(false)
 const submitting = ref(false)
 
 // Toolbar Search & Filter States
@@ -420,10 +439,11 @@ const searchQuery = ref('')
 const filterRole = ref('all')
 const sortBy = ref('newest')
 
-const form = reactive({
+const createForm = reactive({
   name: '',
   username: '',
   email: '',
+  password: '',
   role: 'user'
 })
 
@@ -506,28 +526,27 @@ const fetchUsers = async () => {
   }
 }
 
-const openEditModal = (u: any) => {
-  editUserObj.value = u
-  form.name = u.name
-  form.username = u.username || ''
-  form.email = u.email
-  form.role = u.role
-  showModal.value = true
+const openCreateModal = () => {
+  createForm.name = ''
+  createForm.username = ''
+  createForm.email = ''
+  createForm.password = ''
+  createForm.role = 'user'
+  showCreateModal.value = true
 }
 
-const saveUser = async () => {
-  if (!editUserObj.value) return
+const createUser = async () => {
   submitting.value = true
 
   try {
     const toast = useToast()
-    await api.put(`/api/admin/users/${editUserObj.value.id}`, form)
-    toast.success('Peran dan data pengguna berhasil diubah!')
-    showModal.value = false
+    await api.post('/api/admin/users', createForm)
+    toast.success('Pengguna baru berhasil ditambahkan!')
+    showCreateModal.value = false
     await fetchUsers()
   } catch (err: any) {
     const toast = useToast()
-    toast.error(err.data?.message || 'Gagal mengubah peran pengguna')
+    toast.error(err.data?.message || 'Gagal menambahkan pengguna baru')
   } finally {
     submitting.value = false
   }

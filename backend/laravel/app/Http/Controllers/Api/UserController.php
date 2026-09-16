@@ -25,6 +25,31 @@ class UserController extends Controller
         return response()->json(['data' => new UserResource($user)]);
     }
 
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:admin,user',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('users', 'public');
+        }
+
+        $user = User::create($validated);
+
+        return response()->json([
+            'message' => 'Pengguna baru berhasil ditambahkan',
+            'data' => new UserResource($user),
+        ], 201);
+    }
+
     public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([

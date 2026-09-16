@@ -1,6 +1,8 @@
 <template>
-  <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Header Section with Scan & Camera Controls -->
+  <div>
+    <!-- Interactive Screen UI (COMPLETELY HIDDEN on Print) -->
+    <div class="space-y-6 max-w-7xl mx-auto print:hidden">
+      <!-- Header Section with Scan & Camera Controls -->
     <div
       :class="isDark ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-2 border-black text-black shadow-[4px_4px_0px_#000000]'"
       class="p-5 sm:p-6 rounded-3xl border-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-colors duration-300"
@@ -508,6 +510,91 @@
       </div>
     </div>
   </div>
+
+    <!-- Dedicated Printable POS Thermal Receipt (Hidden on Screen, Visible on Print) -->
+    <div id="printable-receipt" v-if="selectedOrder" class="hidden print:block bg-white text-black p-4 text-xs font-mono max-w-[320px] mx-auto border border-black">
+      <div class="text-center pb-3 border-b-2 border-dashed border-black">
+        <h2 class="text-base font-black tracking-wider uppercase">TOKOBukuDigital</h2>
+        <p class="text-[10px] text-zinc-700">Platform Katalog & Penjualan Buku Digital</p>
+        <p class="text-[10px] text-zinc-700">Jl. Pendidikan No. 123 &bull; Telp: 0812-3456-7890</p>
+      </div>
+
+      <div class="py-2.5 border-b border-dashed border-black text-[11px] space-y-1">
+        <div class="flex justify-between">
+          <span>No. Struk:</span>
+          <span class="font-bold uppercase font-mono">{{ selectedOrder.kode_pesanan }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Tanggal:</span>
+          <span>{{ formatReceiptDateTime(selectedOrder.created_at) }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Kasir:</span>
+          <span>Admin Kasir</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Pelanggan:</span>
+          <span class="font-bold">{{ selectedOrder.user_name || selectedOrder.pelanggan || 'User' }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Metode Bayar:</span>
+          <span class="uppercase font-bold">{{ selectedOrder.payment_method || 'CASH / KASIR' }}</span>
+        </div>
+      </div>
+
+      <!-- Items List -->
+      <div class="py-2.5 border-b-2 border-dashed border-black">
+        <table class="w-full text-[11px]">
+          <thead>
+            <tr class="border-b border-dashed border-black font-bold">
+              <th class="text-left py-1">ITEM</th>
+              <th class="text-center py-1">QTY</th>
+              <th class="text-right py-1">HARGA</th>
+              <th class="text-right py-1">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in (selectedOrder.details || selectedOrder.items || [])" :key="item.id">
+              <td class="py-1.5 pr-1 font-bold">{{ item.buku?.nama_buku || item.nama_buku || item.buku?.judul }}</td>
+              <td class="text-center py-1.5 font-bold">{{ item.qty }}</td>
+              <td class="text-right py-1.5 font-mono">Rp {{ formatPrice(item.harga_satuan) }}</td>
+              <td class="text-right py-1.5 font-mono font-bold">Rp {{ formatPrice(item.subtotal) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary Total -->
+      <div class="py-2.5 border-b-2 border-dashed border-black text-[11px] space-y-1">
+        <div class="flex justify-between font-black text-xs">
+          <span>TOTAL TAGIHAN:</span>
+          <span class="font-mono font-bold">Rp {{ formatPrice(selectedOrder.total_harga) }}</span>
+        </div>
+        <div v-if="selectedOrder.cash" class="flex justify-between">
+          <span>TUNAI (CASH):</span>
+          <span class="font-mono">Rp {{ formatPrice(selectedOrder.cash) }}</span>
+        </div>
+        <div v-if="selectedOrder.kembalian !== null && selectedOrder.kembalian !== undefined" class="flex justify-between font-bold">
+          <span>KEMBALIAN:</span>
+          <span class="font-mono">Rp {{ formatPrice(selectedOrder.kembalian) }}</span>
+        </div>
+        <div class="flex justify-between pt-1 border-t border-dotted border-black">
+          <span>STATUS:</span>
+          <span class="font-black uppercase tracking-wider">{{ selectedOrder.status === 'completed' ? 'LUNAS / SELESAI' : (selectedOrder.status === 'confirmed' ? 'TERKONFIRMASI' : selectedOrder.status) }}</span>
+        </div>
+      </div>
+
+      <!-- Footer & QR -->
+      <div class="text-center pt-3 space-y-2">
+        <div class="flex justify-center my-1">
+          <QrCodeDisplay :value="selectedOrder.kode_pesanan" :size="95" show-label />
+        </div>
+        <p class="text-[10px] font-black">*** TERIMA KASIH ATAS KUNJUNGAN ANDA ***</p>
+        <p class="text-[8px] text-zinc-500">Struk ini merupakan bukti pembayaran yang sah dari TokoBukuDigital.</p>
+        <p class="text-[8px] font-mono font-bold">www.tokobukudigital.com</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -576,6 +663,13 @@ const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
   const d = new Date(dateStr)
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
+}
+
+const formatReceiptDateTime = (dateStr: string) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  const pad = (n: number) => (n < 10 ? '0' + n : n)
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())} WIB`
 }
 
 const pendingOrdersCount = computed(() => orders.value.filter(o => o.status === 'pending').length)
@@ -796,6 +890,11 @@ const processPayment = async () => {
 }
 
 const printReceipt = () => {
+  if (!selectedOrder.value) {
+    const toast = useToast()
+    toast.error('Pilih atau scan pesanan terlebih dahulu untuk mencetak struk kasir.')
+    return
+  }
   window.print()
 }
 
@@ -847,17 +946,56 @@ onUnmounted(() => {
 
 <style scoped>
 @media print {
-  body * {
-    visibility: hidden;
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
   }
-  .order-card, .order-card * {
-    visibility: visible;
+
+  /* Hide everything except printable receipt */
+  header,
+  nav,
+  aside,
+  footer,
+  .print\:hidden {
+    display: none !important;
   }
-  .order-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+
+  #printable-receipt {
+    display: block !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 20px auto !important;
+    padding: 12px 10px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1.5px solid #000000 !important;
+    box-shadow: none !important;
+  }
+
+  #printable-receipt table {
+    display: table !important;
+    width: 100% !important;
+  }
+
+  #printable-receipt thead {
+    display: table-header-group !important;
+  }
+
+  #printable-receipt tbody {
+    display: table-row-group !important;
+  }
+
+  #printable-receipt tr {
+    display: table-row !important;
+  }
+
+  #printable-receipt th,
+  #printable-receipt td {
+    display: table-cell !important;
+  }
+
+  #printable-receipt .flex {
+    display: flex !important;
   }
 }
 </style>

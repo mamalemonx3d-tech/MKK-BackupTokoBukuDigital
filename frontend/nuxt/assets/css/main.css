@@ -26,3 +26,29 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(120, 120, 120, 0.5);
 }
+
+/* Global Print Styles */
+@media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  html, body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .print\:hidden,
+  header,
+  nav,
+  aside,
+  footer {
+    display: none !important;
+  }
+  .print\:block {
+    display: block !important;
+  }
+}

@@ -1,29 +1,29 @@
 <template>
   <div 
-    class="flex flex-col md:flex-row antialiased transition-colors duration-300 font-sans"
+    class="flex flex-col md:flex-row antialiased transition-colors duration-300 font-sans print:bg-white print:text-black"
     :class="[
       isDark ? 'bg-[#09090b] text-[#f4f4f5]' : 'bg-[#fafafa] text-[#09090b]',
-      isChatPage ? 'h-screen overflow-hidden pb-16 md:pb-0' : 'min-h-screen pb-20 md:pb-0'
+      isChatPage ? 'h-screen overflow-hidden pb-16 md:pb-0' : 'min-h-screen pb-20 md:pb-0 print:pb-0'
     ]"
   >
     <!-- Desktop Sidebar -->
-    <Sidebar />
+    <Sidebar class="print:hidden" />
 
     <!-- Right Main Content Wrapper -->
-    <div class="flex-grow flex flex-col min-w-0 min-h-0">
+    <div class="flex-grow flex flex-col min-w-0 min-h-0 print:w-full print:block">
       <!-- Header Bar -->
-      <Header />
+      <Header class="print:hidden" />
 
       <!-- Main Content Container -->
       <main 
-        class="flex-1 flex flex-col min-h-0 transition-colors duration-300"
+        class="flex-1 flex flex-col min-h-0 transition-colors duration-300 print:p-0 print:m-0 print:bg-white print:block"
         :class="[
           isDark ? 'bg-[#09090b]' : 'bg-[#fafafa]',
           isChatPage ? 'p-0 overflow-hidden' : 'p-3 sm:p-6 lg:p-8 overflow-y-auto'
         ]"
       >
         <div 
-          class="transition-colors duration-300"
+          class="transition-colors duration-300 print:p-0 print:m-0 print:border-none print:shadow-none print:bg-white print:rounded-none"
           :class="[
             isChatPage 
               ? 'flex-1 flex flex-col h-full overflow-hidden' 
@@ -40,7 +40,7 @@
     <!-- Mobile Bottom Navigation Bar (Shown ONLY on Mobile < md) -->
     <nav 
       :class="isDark ? 'bg-[#09090b] border-t border-zinc-800 text-white' : 'bg-white border-t-2 border-black text-black'"
-      class="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-colors duration-300"
+      class="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-colors duration-300 print:hidden"
     >
       <div class="flex items-center justify-around h-16 px-2">
         <template v-for="item in bottomNavItems" :key="item.path">
@@ -77,10 +77,10 @@
     </nav>
 
     <!-- Floating Chat Widget (Bottom Right Corner on ALL pages) -->
-    <FloatingChat />
+    <FloatingChat class="print:hidden" />
 
     <!-- Toast Notifications (Top Right Corner) -->
-    <Toast />
+    <Toast class="print:hidden" />
   </div>
 </template>
 
