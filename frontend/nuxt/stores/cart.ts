@@ -87,6 +87,8 @@ export const useCartStore = defineStore('cart', () => {
     saveCart()
   }
 
+  const updateTimers = new Map<number, any>()
+
   const updateQty = async (bookId: number, qty: number) => {
     const item = items.value.find(i => i.book_id === bookId)
     if (!item) return
@@ -100,23 +102,42 @@ export const useCartStore = defineStore('cart', () => {
       throw new Error(`Stok maksimal: ${item.stok}`)
     }
 
-    if (authStore.isAuthenticated && item.id) {
-      try {
-        await api.put(`/api/cart/${item.id}`, { qty })
-        item.qty = qty
-        saveCart()
-        return
-      } catch (err: any) {
-        throw new Error(err.data?.message || 'Gagal mengupdate keranjang')
-      }
-    }
-
+    const prevQty = item.qty
+    // Instant local reactive update (0ms UI latency)
     item.qty = qty
     saveCart()
+
+    if (authStore.isAuthenticated && item.id) {
+      // Clear pending debounce timer for this item
+      if (updateTimers.has(item.id)) {
+        clearTimeout(updateTimers.get(item.id))
+      }
+
+      // Debounce server sync so rapid + / - clicks are instant in UI and sync cleanly
+      const timer = setTimeout(async () => {
+        try {
+          await api.put(`/api/cart/${item.id}`, { qty: item.qty })
+        } catch (err: any) {
+          // Revert on error
+          item.qty = prevQty
+          saveCart()
+          const toast = useToast()
+          toast.error(err.data?.message || 'Gagal memperbarui keranjang di server')
+        } finally {
+          updateTimers.delete(item.id!)
+        }
+      }, 200)
+
+      updateTimers.set(item.id, timer)
+    }
   }
 
   const removeFromCart = async (bookId: number) => {
     const item = items.value.find(i => i.book_id === bookId)
+    if (item && item.id && updateTimers.has(item.id)) {
+      clearTimeout(updateTimers.get(item.id))
+      updateTimers.delete(item.id)
+    }
     if (authStore.isAuthenticated && item && item.id) {
       try {
         await api.delete(`/api/cart/${item.id}`)

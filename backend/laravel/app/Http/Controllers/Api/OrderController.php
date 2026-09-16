@@ -19,7 +19,7 @@ class OrderController extends Controller
     // List orders for admin or user
     public function index(Request $request): JsonResponse
     {
-        $query = Order::with(['user', 'orderDetails.book']);
+        $query = Order::with(['user:id,name,email', 'orderDetails.book:id,nama_buku,harga_jual,gambar']);
 
         if ($request->user()->role !== 'admin') {
             $query->where('user_id', $request->user()->id);
@@ -96,7 +96,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Pesanan berhasil dibuat dengan kode ' . $kodePesanan,
-                'data' => new OrderResource($order->load(['user', 'orderDetails.book'])),
+                'data' => new OrderResource($order->load(['user:id,name,email', 'orderDetails.book:id,nama_buku,harga_jual,gambar'])),
             ], 201);
         });
     }
@@ -104,7 +104,7 @@ class OrderController extends Controller
     public function show(Order $order): JsonResponse
     {
         return response()->json([
-            'data' => new OrderResource($order->load(['user', 'orderDetails.book'])),
+            'data' => new OrderResource($order->loadMissing(['user:id,name,email', 'orderDetails.book:id,nama_buku,harga_jual,gambar'])),
         ]);
     }
 
@@ -116,10 +116,12 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => 'confirmed']);
+        $order->status = 'confirmed';
+        $order->loadMissing(['user:id,name,email', 'orderDetails.book:id,nama_buku,harga_jual,gambar']);
 
         return response()->json([
             'message' => 'Pesanan ' . $order->kode_pesanan . ' berhasil dikonfirmasi.',
-            'data' => new OrderResource($order->fresh(['user', 'orderDetails.book'])),
+            'data' => new OrderResource($order),
         ]);
     }
 
@@ -140,10 +142,14 @@ class OrderController extends Controller
             'kembalian' => $kembalian,
             'status' => 'completed',
         ]);
+        $order->cash = $cash;
+        $order->kembalian = $kembalian;
+        $order->status = 'completed';
+        $order->loadMissing(['user:id,name,email', 'orderDetails.book:id,nama_buku,harga_jual,gambar']);
 
         return response()->json([
             'message' => 'Pembayaran berhasil diproses. Kembalian: Rp ' . number_format($kembalian, 0, ',', '.'),
-            'data' => new OrderResource($order->fresh(['user', 'orderDetails.book'])),
+            'data' => new OrderResource($order),
         ]);
     }
 
@@ -156,15 +162,17 @@ class OrderController extends Controller
 
         $kode = strtoupper(trim($request->kode_pesanan));
 
-        $query = Order::where('kode_pesanan', $kode)
-            ->orWhere('kode_pesanan', 'LIKE', '%' . $kode);
+        $query = Order::where(function ($q) use ($kode) {
+            $q->where('kode_pesanan', $kode)
+              ->orWhere('kode_pesanan', 'LIKE', '%' . $kode);
+        });
 
         // If logged-in user is not admin, limit search to their own orders
         if ($request->user()->role !== 'admin') {
             $query->where('user_id', $request->user()->id);
         }
 
-        $order = $query->with(['user', 'orderDetails.book'])->first();
+        $order = $query->with(['user:id,name,email', 'orderDetails.book:id,nama_buku,harga_jual,gambar'])->first();
 
         if (!$order) {
             return response()->json([
@@ -175,11 +183,12 @@ class OrderController extends Controller
         // Auto update status to 'confirmed' when scanned if status was 'pending'!
         if ($order->status === 'pending') {
             $order->update(['status' => 'confirmed']);
+            $order->status = 'confirmed';
         }
 
         return response()->json([
             'message' => "Scan Berhasil! Status pesanan {$order->kode_pesanan} berhasil diperbarui di Database ke 'CONFIRMED'.",
-            'data' => new OrderResource($order->fresh(['user', 'orderDetails.book'])),
+            'data' => new OrderResource($order),
         ]);
     }
 

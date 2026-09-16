@@ -842,7 +842,9 @@ const deleteBook = async (b: any) => {
 }
 
 onMounted(async () => {
-  await fetchCategories()
-  await fetchBooks()
+  await Promise.all([
+    fetchCategories(),
+    fetchBooks()
+  ])
 })
 </script>

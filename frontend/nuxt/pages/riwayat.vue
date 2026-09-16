@@ -470,14 +470,19 @@ const submitReview = async () => {
   }
 }
 
+let isFetchingOrders = false
+
 const fetchOrders = async (silent = false) => {
-  if (!silent) loading.value = true
+  if (isFetchingOrders) return
+  isFetchingOrders = true
+  if (!silent && orders.value.length === 0) loading.value = true
   try {
     const res = await api.get('/api/orders')
     orders.value = res.data || []
   } catch (e) {
     console.error(e)
   } finally {
+    isFetchingOrders = false
     if (!silent) loading.value = false
   }
 }
@@ -608,8 +613,10 @@ const onGlobalKeydown = (e: KeyboardEvent) => {
 onMounted(() => {
   fetchOrders()
   pollTimer = setInterval(() => {
-    fetchOrders(true)
-  }, 5000)
+    if (document.visibilityState === 'visible') {
+      fetchOrders(true)
+    }
+  }, 10000)
 
   if (process.client) {
     window.addEventListener('keydown', onGlobalKeydown)

@@ -213,32 +213,16 @@ const route = useRoute()
 const authStore = useAuthStore()
 const { isDark } = useTheme()
 const { isCollapsed, toggle, initSidebar } = useSidebar()
+const { unreadCount, initUnreadListener } = useUnreadChat()
 
 const searchQuery = ref('')
 const api = useApi()
-const unreadCount = ref(0)
-let pollTimer: any = null
-
-const checkUnread = async () => {
-  if (!authStore.isAuthenticated) return
-  try {
-    const res = await api.get('/api/chats/unread-count')
-    unreadCount.value = res?.data?.unread_count || res?.unread_count || 0
-  } catch (e) {
-    unreadCount.value = 0
-  }
-}
 
 onMounted(() => {
   initSidebar()
   if (authStore.isAuthenticated) {
-    checkUnread()
-    pollTimer = setInterval(checkUnread, 5000)
+    initUnreadListener()
   }
-})
-
-onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer)
 })
 
 const adminNavItems = [

@@ -19,7 +19,7 @@
         <div class="relative w-full sm:w-64">
           <input 
             v-model="searchQuery" 
-            @input="fetchBooks" 
+            @input="onSearchInput" 
             type="text" 
             placeholder="Cari judul buku..." 
             :class="isDark ? 'bg-zinc-900 border-zinc-700 text-white placeholder-zinc-500 focus:border-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000] focus:shadow-[3px_3px_0px_#000000] placeholder-zinc-400'"
@@ -30,7 +30,7 @@
 
         <select 
           v-model="selectedCategory" 
-          @change="fetchBooks" 
+          @change="onCategoryChange" 
           :class="isDark ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white border-2 border-black text-black shadow-[2px_2px_0px_#000000]'"
           class="px-3.5 py-2.5 text-xs rounded-xl outline-none font-bold transition-all border-2 cursor-pointer"
         >
@@ -155,6 +155,27 @@ const goToDetail = (book: any) => {
   router.push(`/books/${book.id}`)
 }
 
+let searchDebounceTimer: any = null
+
+const onSearchInput = () => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    fetchBooks()
+  }, 250)
+}
+
+const onCategoryChange = () => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  fetchBooks()
+}
+
+const fetchCategories = async () => {
+  try {
+    const catRes = await api.get('/api/categories')
+    categories.value = catRes.data || []
+  } catch (e) {}
+}
+
 const fetchBooks = async () => {
   loading.value = true
   try {
@@ -192,11 +213,9 @@ const addToCart = async (book: any) => {
 }
 
 onMounted(async () => {
-  try {
-    const catRes = await api.get('/api/categories')
-    categories.value = catRes.data || []
-  } catch (e) {}
-
-  await fetchBooks()
+  await Promise.all([
+    fetchCategories(),
+    fetchBooks()
+  ])
 })
 </script>

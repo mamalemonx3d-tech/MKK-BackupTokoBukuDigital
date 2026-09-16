@@ -652,6 +652,14 @@ const handleScanSubmit = async () => {
     scanSuccessBanner.value = true
     scanQuery.value = ''
     
+    // Update local orders list immediately for instant UI update
+    const idx = orders.value.findIndex(o => o.id === matched.id || o.kode_pesanan === matched.kode_pesanan)
+    if (idx !== -1) {
+      orders.value[idx] = matched
+    } else {
+      orders.value.unshift(matched)
+    }
+
     // Play audio beep sound on scan success
     if (process.client) {
       try {
@@ -672,7 +680,6 @@ const handleScanSubmit = async () => {
 
     const toast = useToast()
     toast.success(`Scan Berhasil! Kode: ${matched.kode_pesanan}`)
-    await fetchOrders()
   } catch (err: any) {
     const toast = useToast()
     toast.error(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan!`)
@@ -741,9 +748,12 @@ const confirmOrder = async (order: any) => {
     const toast = useToast()
     const res = await api.put(`/api/admin/orders/${order.id}/confirm`)
     toast.success(res.message || 'Pesanan berhasil dikonfirmasi!')
-    await fetchOrders()
     if (selectedOrder.value && selectedOrder.value.id === order.id) {
       selectedOrder.value.status = 'confirmed'
+    }
+    const idx = orders.value.findIndex(o => o.id === order.id)
+    if (idx !== -1) {
+      orders.value[idx].status = 'confirmed'
     }
   } catch (err: any) {
     const toast = useToast()
@@ -768,10 +778,14 @@ const processPayment = async () => {
     })
     showPayModal.value = false
     toast.success(res.message || 'Pembayaran berhasil diselesaikan!')
-    await fetchOrders()
     if (selectedOrder.value && selectedOrder.value.id === activePayOrder.value.id) {
       selectedOrder.value.status = 'completed'
       selectedOrder.value.cash = cashInput.value
+    }
+    const idx = orders.value.findIndex(o => o.id === activePayOrder.value.id)
+    if (idx !== -1) {
+      orders.value[idx].status = 'completed'
+      orders.value[idx].cash = cashInput.value
     }
   } catch (err: any) {
     const toast = useToast()

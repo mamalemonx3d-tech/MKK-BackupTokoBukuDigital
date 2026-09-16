@@ -24,9 +24,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 const api = useApi()
 const { isDark } = useTheme()
-
-const unreadCount = ref(0)
-let pollTimer: any = null
+const { unreadCount, initUnreadListener } = useUnreadChat()
 
 const isChatPage = computed(() => {
   return route.path.includes('/chat')
@@ -44,27 +42,9 @@ const navigateToChat = async () => {
   }
 }
 
-const checkUnread = async () => {
-  if (!authStore.isAuthenticated || isChatPage.value) {
-    unreadCount.value = 0
-    return
-  }
-  try {
-    const res: any = await api.get('/api/chats/unread-count')
-    unreadCount.value = res.unread_count ?? res.data?.unread_count ?? 0
-  } catch (e) {
-    unreadCount.value = 0
-  }
-}
-
 onMounted(() => {
   if (authStore.isAuthenticated) {
-    checkUnread()
-    pollTimer = setInterval(checkUnread, 5000)
+    initUnreadListener()
   }
-})
-
-onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer)
 })
 </script>

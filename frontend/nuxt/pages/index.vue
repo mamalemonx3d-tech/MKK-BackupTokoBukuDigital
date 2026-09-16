@@ -608,9 +608,9 @@ onUnmounted(() => {
         </div>
 
         <!-- Book Cards Grid -->
-        <div v-if="filteredCatalogBooks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div v-if="filteredBooks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div 
-            v-for="book in filteredCatalogBooks" 
+            v-for="book in filteredBooks" 
             :key="book.id"
             class="rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
             :class="isDark ? 'bg-zinc-900/60 border-zinc-800 hover:border-zinc-600' : 'bg-white border-black shadow-[4px_4px_0px_#000000] hover:shadow-[6px_6px_0px_#000000] hover:-translate-y-1'"
